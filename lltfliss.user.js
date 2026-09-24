@@ -1,20 +1,18 @@
 // ==UserScript==
-// @name          Dual Subtitles for Mandarin (with Flashcards)
-// @namespace     https://github.com/Yenwen6281/mandarin-subtitles
-// @version       6.2.1
-// @description   Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, and full interactive button feedback on notes.
-// @updateURL     https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
-// @downloadURL   https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
-// @match         *://*.netflix.com/*
-// @match         *://*.youtube.com/*
-// @require       https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.7/dist/index.js
-// @grant         GM_xmlhttpRequest
-// @connect       *
-// @connect       translate.googleapis.com
-// @connect       api.mymemory.translated.net
-// @connect       raw.githubusercontent.com
-// @connect       script.google.com
-// @connect       script.googleusercontent.com
+// @name         Dual Subtitles for Mandarin (with Flashcards)
+// @namespace    https://github.com/Yenwen6281/mandarin-subtitles
+// @version      6.1
+// @description  Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, and full interactive button feedback on notes.
+// @match        *://*.netflix.com/*
+// @match        *://*.youtube.com/*
+// @require      https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.7/dist/index.js
+// @grant        GM_xmlhttpRequest
+// @connect      *
+// @connect      translate.googleapis.com
+// @connect      api.mymemory.translated.net
+// @connect      raw.githubusercontent.com
+// @connect      script.google.com
+// @connect      script.googleusercontent.com
 // ==/UserScript==
 
 (function() {
