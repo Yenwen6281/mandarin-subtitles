@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.1
+// @version      6.2
 // @description  Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, and full interactive button feedback on notes.
 // @match        *://*.netflix.com/*
 // @match        *://*.youtube.com/*
@@ -245,7 +245,7 @@
 
     // --- 2. TOGGLE BUTTON SETUP ---
     const toggleBtn = document.createElement('button');
-    toggleBtn.innerHTML = '🥚'; 
+    toggleBtn.innerHTML = '🥚';
     toggleBtn.id = 'mandarin-toggle-btn';
 
     toggleBtn.style.cssText = `
@@ -257,7 +257,7 @@
         color: white;
         border: none;
         border-radius: 50%;
-        width: 55px; 
+        width: 55px;
         height: 55px;
         cursor: pointer;
         font-size: 26px;
@@ -265,14 +265,14 @@
         transform-origin: center bottom;
         box-shadow: 
             inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-            inset 2px 2px 5px rgba(255, 255, 255, 0.95), 
-            inset -3px -3px 5px rgba(150, 180, 200, 0.3), 
-            0 6px 0 #b0d4e3, 
+            inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+            inset -3px -3px 5px rgba(150, 180, 200, 0.3),
+            0 6px 0 #b0d4e3,
             0 12px 16px rgba(150, 180, 200, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
-        user-select: none; 
+        user-select: none;
         touch-action: none;
         outline: none;
     `;
@@ -285,9 +285,9 @@
                 border-radius: 50%;
                 box-shadow: 
                     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                    inset 2px 2px 5px rgba(255, 255, 255, 0.95), 
-                    inset -3px -3px 5px rgba(150, 180, 200, 0.25), 
-                    0 6px 0 var(--egg-shadow-color, #b0d4e3), 
+                    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+                    inset -3px -3px 5px rgba(150, 180, 200, 0.25),
+                    0 6px 0 var(--egg-shadow-color, #b0d4e3),
                     0 12px 16px rgba(150, 180, 200, 0.4);
             }
             45% {
@@ -296,7 +296,7 @@
                 box-shadow: 
                     inset 0 0 0 1.5px rgba(255, 255, 255, 0.65),
                     inset 0 3px 5px rgba(130, 165, 185, 0.35),
-                    0 3.5px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 3.5px 0 var(--egg-shadow-color, #b0d4e3),
                     0 6px 12px rgba(150, 180, 200, 0.45);
             }
             80% {
@@ -305,7 +305,7 @@
                 box-shadow: 
                     inset 0 0 0 1px rgba(255, 255, 255, 0.5),
                     inset 0 4px 7px rgba(130, 165, 185, 0.5),
-                    0 1px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 1px 0 var(--egg-shadow-color, #b0d4e3),
                     0 2px 6px rgba(150, 180, 200, 0.55);
             }
             100% {
@@ -314,7 +314,7 @@
                 box-shadow: 
                     inset 0 0 0 1.2px rgba(255, 255, 255, 0.55),
                     inset 0 3px 6px rgba(130, 165, 185, 0.45),
-                    0 1.5px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 1.5px 0 var(--egg-shadow-color, #b0d4e3),
                     0 3px 8px rgba(150, 180, 200, 0.5);
             }
         }
@@ -332,7 +332,7 @@
                 border-radius: 54% 54% 48% 48% / 58% 58% 44% 44%;
                 box-shadow: 
                     inset 0 0 0 2px rgba(255, 255, 255, 0.9),
-                    0 11px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 11px 0 var(--egg-shadow-color, #b0d4e3),
                     0 20px 24px rgba(150, 180, 200, 0.5);
             }
             52% {
@@ -340,7 +340,7 @@
                 border-radius: 49% 49% 46% 46% / 46% 46% 52% 52%;
                 box-shadow: 
                     inset 0 0 0 1.8px rgba(255, 255, 255, 0.8),
-                    0 5px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 5px 0 var(--egg-shadow-color, #b0d4e3),
                     0 10px 14px rgba(150, 180, 200, 0.38);
             }
             74% {
@@ -348,7 +348,7 @@
                 border-radius: 51% 51% 50% 50% / 52% 52% 48% 48%;
                 box-shadow: 
                     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                    0 7.5px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 7.5px 0 var(--egg-shadow-color, #b0d4e3),
                     0 14px 18px rgba(150, 180, 200, 0.42);
             }
             88% {
@@ -356,7 +356,7 @@
                 border-radius: 50%;
                 box-shadow: 
                     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                    0 6px 0 var(--egg-shadow-color, #b0d4e3), 
+                    0 6px 0 var(--egg-shadow-color, #b0d4e3),
                     0 12px 16px rgba(150, 180, 200, 0.4);
             }
             100% {
@@ -364,9 +364,9 @@
                 border-radius: 50%;
                 box-shadow: 
                     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                    inset 2px 2px 5px rgba(255, 255, 255, 0.95), 
-                    inset -3px -3px 5px rgba(150, 180, 200, 0.3), 
-                    0 6px 0 #b0d4e3, 
+                    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+                    inset -3px -3px 5px rgba(150, 180, 200, 0.3),
+                    0 6px 0 #b0d4e3,
                     0 12px 16px rgba(150, 180, 200, 0.4);
             }
         }
@@ -375,9 +375,9 @@
             transform: translateY(-4px) scale(1.06, 1.04);
             box-shadow: 
                 inset 0 0 0 2px rgba(255, 255, 255, 0.95),
-                inset 2px 2px 5px rgba(255, 255, 255, 0.95), 
-                inset -3px -3px 5px rgba(150, 180, 200, 0.25), 
-                0 9px 0 var(--egg-shadow-color, #b0d4e3), 
+                inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+                inset -3px -3px 5px rgba(150, 180, 200, 0.25),
+                0 9px 0 var(--egg-shadow-color, #b0d4e3),
                 0 16px 22px rgba(150, 180, 200, 0.48);
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
         }
@@ -447,7 +447,6 @@
             padding-top: 4px;
         }
 
-        /* Popup Note Save & Close Tactile Button Feedback */
         #mandarin-vocab-popup #popup-note-save-btn {
             background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
             color: white;
@@ -618,7 +617,6 @@
             transform: translateY(2px) scale(0.85) rotate(4deg);
         }
 
-        /* Report Modal Tactile Buttons */
         #mandarin-report-modal #send-report-btn {
             width: 100%;
             background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
@@ -725,13 +723,13 @@
 
         if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
             isDragging = true;
-            e.preventDefault(); 
+            e.preventDefault();
         }
 
         if (isDragging) {
             toggleBtn.style.left = `${initialLeft + dx}px`;
             toggleBtn.style.top = `${initialTop + dy}px`;
-            toggleBtn.style.bottom = 'auto'; 
+            toggleBtn.style.bottom = 'auto';
             toggleBtn.style.right = 'auto';
         }
     }
@@ -762,9 +760,9 @@
             toggleBtn.style.background = 'linear-gradient(145deg, #ffe6e6, #f5cde2)';
             toggleBtn.style.boxShadow = `
                 inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                inset 2px 2px 5px rgba(255, 255, 255, 0.9), 
-                inset -3px -3px 5px rgba(220, 160, 180, 0.3), 
-                0 6px 0 #e8b4c8, 
+                inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+                inset -3px -3px 5px rgba(220, 160, 180, 0.3),
+                0 6px 0 #e8b4c8,
                 0 12px 16px rgba(200, 150, 160, 0.4)
             `;
             injectSidebarUI();
@@ -774,9 +772,9 @@
             toggleBtn.style.background = 'linear-gradient(145deg, #eaf8f8, #cde4f6)';
             toggleBtn.style.boxShadow = `
                 inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-                inset 2px 2px 5px rgba(255, 255, 255, 0.9), 
-                inset -3px -3px 5px rgba(150, 180, 200, 0.3), 
-                0 6px 0 #b0d4e3, 
+                inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+                inset -3px -3px 5px rgba(150, 180, 200, 0.3),
+                0 6px 0 #b0d4e3,
                 0 12px 16px rgba(150, 180, 200, 0.4)
             `;
             removeSidebarUI();
@@ -795,17 +793,17 @@
         const imageUrl = 'https://i.pinimg.com/736x/be/ab/dd/beabddfba3f997d5ee1f880c04a869b8.jpg';
         
         sidebarHost.style.cssText = `
-            width: 350px; 
-            height: 100vh; 
-            position: fixed; 
-            right: 0; 
-            top: 0; 
-            z-index: 99998; 
+            width: 350px;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            z-index: 99998;
             background: linear-gradient(rgba(252, 248, 245, 0.85), rgba(252, 248, 245, 0.88)), url('${imageUrl}');
             background-size: cover;
             background-position: center bottom;
             background-repeat: no-repeat;
-            border-left: 3px solid #f5cde2; 
+            border-left: 3px solid #f5cde2;
             box-shadow: -5px 0 15px rgba(200, 150, 160, 0.2);
             overflow: hidden;
             font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -835,11 +833,11 @@
                 }
 
                 #mandarin-menu-btn {
-                    position: absolute; 
-                    top: 10px; 
-                    right: 12px; 
-                    cursor: pointer; 
-                    padding: 8px; 
+                    position: absolute;
+                    top: 10px;
+                    right: 12px;
+                    cursor: pointer;
+                    padding: 8px;
                     border-radius: 12px;
                     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
                 }
@@ -880,7 +878,6 @@
                     box-shadow: 0 1px 0 #b3cddb, 0 2px 4px rgba(139, 166, 182, 0.2), inset 0 2px 3px rgba(139, 166, 182, 0.3);
                 }
 
-                /* Subtitle Transcript Vocabulary Token Tactile Feedback */
                 .hsk-vocab-token {
                     display: inline-block;
                     background: #ffe6e6;
@@ -891,9 +888,9 @@
                     cursor: pointer;
                     user-select: none;
                     box-shadow: 0 1.5px 0 #e8b4c8;
-                    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                                box-shadow 0.15s ease, 
-                                background 0.2s ease, 
+                    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+                                box-shadow 0.15s ease,
+                                background 0.2s ease,
                                 border-color 0.2s ease;
                 }
                 .hsk-vocab-token:hover {
@@ -1365,7 +1362,6 @@
                     text-align: left;
                 }
 
-                /* Flashcard Ponyo Speak Button Tactile Feedback */
                 .fc-speak-btn {
                     background: none;
                     border: none;
@@ -2758,8 +2754,8 @@
             updateVocabNote(vocab, text);
             noteBtn.style.color = hasText ? '#e08b9b' : '#b89c9e';
             indicator.style.display = hasText ? 'block' : 'none';
-            saveBtn.style.color = '#e08b9b'; 
-            deckBtn.style.display = 'inline-flex'; 
+            saveBtn.style.color = '#e08b9b';
+            deckBtn.style.display = 'inline-flex';
         });
 
         saveCloseBtn.addEventListener('click', (e) => {
@@ -3056,7 +3052,7 @@
 
     function fetchMyMemoryTranslate(text) {
         return new Promise((resolve) => {
-            let url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}`;
+            let url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=zh-CN|en`;
             if (MYMEMORY_EMAIL && MYMEMORY_EMAIL.trim()) {
                 url += `&de=${encodeURIComponent(MYMEMORY_EMAIL.trim())}`;
             }
@@ -3069,14 +3065,16 @@
                 onload: function(res) {
                     try {
                         const data = JSON.parse(res.responseText);
-                        const translatedText = data?.responseData?.translatedText || text;
-                        resolve(decodeHtmlEntities(translatedText));
+                        if (data && data.responseStatus === 200 && data.responseData?.translatedText) {
+                            return resolve(decodeHtmlEntities(data.responseData.translatedText));
+                        }
+                        resolve(text);
                     } catch (e) {
                         resolve(text);
                     }
                 },
-                onerror: function(resolve) { resolve(text); },
-                ontimeout: function(resolve) { resolve(text); }
+                onerror: function() { resolve(text); },
+                ontimeout: function() { resolve(text); }
             });
         });
     }
