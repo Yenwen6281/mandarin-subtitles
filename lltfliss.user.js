@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Dual Subtitles for Mandarin (with Flashcards)
+// @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
 // @version      6.1
 // @description  Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, and full interactive button feedback on notes.
