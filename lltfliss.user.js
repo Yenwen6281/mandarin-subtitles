@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.2
-// @description  Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, and full interactive button feedback on notes.
+// @version      6.3.1
+// @description  Dual-subtitle sidebar, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, searchable/sortable/filterable saved vocab, interactive flashcards, tactile subtitle tokens, full interactive button feedback on notes, and two-way real-time Firebase cloud sync with WebApp.
 // @match        *://*.netflix.com/*
 // @match        *://*.youtube.com/*
 // @require      https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.7/dist/index.js
@@ -13,6 +13,7 @@
 // @connect      raw.githubusercontent.com
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
+// @connect      firestore.googleapis.com
 // ==/UserScript==
 
 (function() {
@@ -21,6 +22,8 @@
     // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
     const STORAGE_KEY = 'eggy_saved_vocab';
     const ASKED_STORAGE_KEY = 'eggy_asked_words';
+    const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
+    const FIREBASE_PROJECT_ID = 'lltfliss-ce07a';
     const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEkOXPBJgpXoxALL2Qmx1LWoJc4Q1yHySGV_clcSJmuS6_ue7nZUrx5HEM-tOMpVSGrQ/exec';
     const WOODSTOCK_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/dafd9d8981693cfc1ceb84a26c85442dcb9716da/woodstock.png';
     const MENU_ICON_A1_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/eb913ed5aad5b8f43a3d28c2a8f6cf93aa590ba6/a1.png';
@@ -57,6 +60,135 @@
     let currentFlashcardMode = 'hanzi';
     let currentSessionDeck = [];
 
+    // --- FIREBASE REST API 雙向同步核心 ---
+    function getSyncKey() {
+        return localStorage.getItem(SYNC_KEY_STORAGE) || '';
+    }
+
+    function setSyncKey(key) {
+        if (key) {
+            localStorage.setItem(SYNC_KEY_STORAGE, key.trim());
+        } else {
+            localStorage.removeItem(SYNC_KEY_STORAGE);
+        }
+    }
+
+    // 1. 推送單一單字至雲端
+    function syncVocabToCloud(vocab) {
+        const uid = getSyncKey();
+        if (!uid) return;
+
+        const docUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}/vocab/${encodeURIComponent(vocab.hanzi)}`;
+        
+        const translationsArray = (vocab.translations || []).map(t => ({ stringValue: t }));
+        const beanReplies = getAllBeanRepliesFor(vocab.hanzi);
+        const latestBeanReply = beanReplies.length > 0 ? beanReplies[beanReplies.length - 1].reply : '';
+
+        const payload = {
+            fields: {
+                hanzi: { stringValue: vocab.hanzi || '' },
+                pinyin: { stringValue: vocab.pinyin || '' },
+                level: { integerValue: vocab.level || 0 },
+                note: { stringValue: vocab.note || '' },
+                inDeck: { booleanValue: !!vocab.inDeck },
+                beanReply: { stringValue: latestBeanReply },
+                translations: { arrayValue: { values: translationsArray } },
+                updatedAt: { integerValue: Date.now() }
+            }
+        };
+
+        GM_xmlhttpRequest({
+            method: 'PATCH',
+            url: docUrl,
+            headers: { 'Content-Type': 'application/json' },
+            data: JSON.stringify(payload),
+            onload: function(res) {
+                if (res.status === 200) {
+                    console.log(`☁️ Synced [${vocab.hanzi}] to Firebase!`);
+                }
+            }
+        });
+    }
+
+    // 2. 從雲端刪除單字
+    function deleteVocabFromCloud(hanzi) {
+        const uid = getSyncKey();
+        if (!uid) return;
+
+        const docUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}/vocab/${encodeURIComponent(hanzi)}`;
+        
+        GM_xmlhttpRequest({
+            method: 'DELETE',
+            url: docUrl,
+            onload: function(res) {
+                console.log(`☁️ Removed [${hanzi}] from Firebase!`);
+            }
+        });
+    }
+
+    // 3. 從雲端拉取全部單字覆蓋本地 (Pull from Cloud)
+    function pullVocabFromCloud(onComplete) {
+        const uid = getSyncKey();
+        if (!uid) {
+            if (typeof onComplete === 'function') onComplete();
+            return;
+        }
+
+        const collectionUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}/vocab?pageSize=300`;
+
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: collectionUrl,
+            onload: function(res) {
+                try {
+                    if (res.status === 200) {
+                        const data = JSON.parse(res.responseText);
+                        if (data && Array.isArray(data.documents)) {
+                            const cloudVocabList = data.documents.map(doc => {
+                                const f = doc.fields || {};
+                                const translations = f.translations?.arrayValue?.values
+                                    ? f.translations.arrayValue.values.map(v => v.stringValue || '')
+                                    : [];
+                                return {
+                                    hanzi: f.hanzi?.stringValue || '',
+                                    pinyin: f.pinyin?.stringValue || '',
+                                    level: parseInt(f.level?.integerValue || 0, 10),
+                                    note: f.note?.stringValue || '',
+                                    inDeck: !!(f.inDeck?.booleanValue),
+                                    translations: translations,
+                                    updatedAt: parseInt(f.updatedAt?.integerValue || 0, 10)
+                                };
+                            }).filter(v => v.hanzi);
+
+                            // 覆蓋並儲存本地 localStorage
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudVocabList));
+                            console.log(`☁️ Successfully pulled & merged ${cloudVocabList.length} words from WebApp!`);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing cloud vocab sync:", e);
+                }
+                if (typeof onComplete === 'function') onComplete();
+            },
+            onerror: function() {
+                if (typeof onComplete === 'function') onComplete();
+            }
+        });
+    }
+
+    // 4. 定時背景輪詢 (每 3 分鐘自動 Pull 一次)
+    setInterval(() => {
+        pullVocabFromCloud(() => {
+            const sidebarHost = document.getElementById('mandarin-sidebar-host');
+            if (sidebarHost && sidebarHost.shadowRoot) {
+                const vocabArea = sidebarHost.shadowRoot.getElementById('saved-vocab-area');
+                if (vocabArea && vocabArea.style.display === 'flex') {
+                    renderSavedVocab(sidebarHost.shadowRoot);
+                }
+            }
+        });
+    }, 3 * 60 * 1000);
+
     // --- UTILITIES ---
     function decodeHtmlEntities(str) {
         if (!str) return '';
@@ -91,9 +223,11 @@
         try {
             let saved = getSavedVocab();
             const existingIndex = saved.findIndex(v => v.hanzi === vocab.hanzi);
+            const vocabEntry = { ...vocab, note: vocab.note || '', inDeck: !!vocab.inDeck };
             if (existingIndex === -1) {
-                saved.push({ ...vocab, note: vocab.note || '', inDeck: false });
+                saved.push(vocabEntry);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+                syncVocabToCloud(vocabEntry);
                 return true;
             }
             return false;
@@ -108,6 +242,7 @@
             let saved = getSavedVocab();
             saved = saved.filter(v => v.hanzi !== hanzi);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            deleteVocabFromCloud(hanzi);
         } catch (e) {
             console.error("Storage delete error:", e);
         }
@@ -117,12 +252,16 @@
         try {
             let saved = getSavedVocab();
             const existingIndex = saved.findIndex(v => v.hanzi === vocab.hanzi);
+            let updatedEntry = null;
             if (existingIndex !== -1) {
                 saved[existingIndex].note = noteText;
+                updatedEntry = saved[existingIndex];
             } else {
-                saved.push({ ...vocab, note: noteText, inDeck: false });
+                updatedEntry = { ...vocab, note: noteText, inDeck: false };
+                saved.push(updatedEntry);
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            if (updatedEntry) syncVocabToCloud(updatedEntry);
         } catch (e) {
             console.error("Note save error:", e);
         }
@@ -137,6 +276,7 @@
                 saved[existingIndex].inDeck = !saved[existingIndex].inDeck;
                 newState = saved[existingIndex].inDeck;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+                syncVocabToCloud(saved[existingIndex]);
             }
             return newState;
         } catch (e) {
@@ -148,7 +288,10 @@
     function clearFlashcardDeck() {
         try {
             let saved = getSavedVocab();
-            saved.forEach(v => v.inDeck = false);
+            saved.forEach(v => {
+                v.inDeck = false;
+                syncVocabToCloud(v);
+            });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
         } catch (e) {}
     }
@@ -767,6 +910,17 @@
             `;
             injectSidebarUI();
             startObservingVideo();
+
+            // 開啟側邊欄時，從雲端 Pull 一次回傳最新進度
+            pullVocabFromCloud(() => {
+                const sidebarHost = document.getElementById('mandarin-sidebar-host');
+                if (sidebarHost && sidebarHost.shadowRoot) {
+                    const vocabArea = sidebarHost.shadowRoot.getElementById('saved-vocab-area');
+                    if (vocabArea && vocabArea.style.display === 'flex') {
+                        renderSavedVocab(sidebarHost.shadowRoot);
+                    }
+                }
+            });
         } else {
             toggleBtn.style.setProperty('--egg-shadow-color', '#b0d4e3');
             toggleBtn.style.background = 'linear-gradient(145deg, #eaf8f8, #cde4f6)';
@@ -1523,6 +1677,10 @@
                             <span>Flashcards</span>
                             <img class="menu-item-icon" src="${MENU_ICON_A3_URL}" alt="Flashcards Icon" />
                         </div>
+                        <div class="menu-item" id="menu-opt-cloud" style="border-top: 1px dashed rgba(245, 205, 226, 0.7); margin-top: 4px; padding-top: 6px;">
+                            <span>🔗 Sync Key</span>
+                            <span style="font-size: 14px;">☁️</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1564,6 +1722,26 @@
 
                 <!-- FLASHCARDS AREA -->
                 <div id="flash-card-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding-right: 4px; padding-bottom: 20px;"></div>
+
+                <!-- CLOUD SYNC KEY AREA -->
+                <div id="cloud-sync-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding: 10px 4px 20px;">
+                    <div style="background: rgba(255, 255, 255, 0.95); border: 2px solid #f5cde2; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(200, 150, 160, 0.15);">
+                        <h3 style="margin: 0 0 8px; color: #e08b9b; font-size: 17px;">☁️ Real-time Cloud Sync</h3>
+                        <p style="margin: 0 0 14px; font-size: 12.5px; color: #7b6267; line-height: 1.4;">
+                            Paste your <b>Sync Key</b> from the mobile WebApp below to sync saved words, notes & flashcards in real-time!
+                        </p>
+                        <input type="text" id="cloud-sync-input" placeholder="Paste Sync Key here..." style="width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid #f5cde2; font-family: monospace; font-size: 12px; outline: none; box-sizing: border-box; margin-bottom: 12px; color: #5c4a4d;">
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button id="save-sync-key-btn" style="background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%); color: white; border: none; border-radius: 10px; padding: 7px 16px; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 2px 6px rgba(224, 139, 155, 0.3);">
+                                Save & Connect
+                            </button>
+                            <button id="clear-sync-key-btn" style="background: #ffffff; color: #a38c90; border: 1px solid #e2becb; border-radius: 10px; padding: 7px 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                                Disconnect
+                            </button>
+                        </div>
+                        <div id="sync-status-msg" style="margin-top: 10px; font-size: 11.5px; font-weight: bold; color: #7b6267;"></div>
+                    </div>
+                </div>
             </div>
         `;
         
@@ -1575,16 +1753,54 @@
         const savedOpt = shadowRoot.getElementById('menu-opt-saved');
         const repliesOpt = shadowRoot.getElementById('menu-opt-replies');
         const flashOpt = shadowRoot.getElementById('menu-opt-flash');
+        const cloudOpt = shadowRoot.getElementById('menu-opt-cloud');
         
         const scrollArea = shadowRoot.getElementById('transcript-scroll-area');
         const vocabArea = shadowRoot.getElementById('saved-vocab-area');
         const repliesArea = shadowRoot.getElementById('bean-replies-area');
         const flashArea = shadowRoot.getElementById('flash-card-area');
+        const cloudArea = shadowRoot.getElementById('cloud-sync-area');
         const backBtn = shadowRoot.getElementById('back-to-subs-btn');
         
         const vocabSearch = shadowRoot.getElementById('vocab-search-input');
         const vocabSort = shadowRoot.getElementById('vocab-sort-select');
         const vocabFilter = shadowRoot.getElementById('vocab-filter-select');
+
+        const syncInput = shadowRoot.getElementById('cloud-sync-input');
+        const saveSyncBtn = shadowRoot.getElementById('save-sync-key-btn');
+        const clearSyncBtn = shadowRoot.getElementById('clear-sync-key-btn');
+        const syncStatusMsg = shadowRoot.getElementById('sync-status-msg');
+
+        if (syncInput) {
+            syncInput.value = getSyncKey();
+            if (getSyncKey()) {
+                syncStatusMsg.textContent = "✅ Connected to Cloud Sync!";
+                syncStatusMsg.style.color = "#3f8a5c";
+            }
+        }
+
+        if (saveSyncBtn) {
+            saveSyncBtn.addEventListener('click', () => {
+                const val = (syncInput.value || '').trim();
+                if (val) {
+                    setSyncKey(val);
+                    syncStatusMsg.textContent = "✅ Sync Key Saved & Connected!";
+                    syncStatusMsg.style.color = "#3f8a5c";
+                    // 立即上傳現有所有單字並同步最新進度
+                    getSavedVocab().forEach(v => syncVocabToCloud(v));
+                    pullVocabFromCloud(() => renderSavedVocab(shadowRoot));
+                }
+            });
+        }
+
+        if (clearSyncBtn) {
+            clearSyncBtn.addEventListener('click', () => {
+                setSyncKey('');
+                syncInput.value = '';
+                syncStatusMsg.textContent = "Disconnected from Cloud Sync.";
+                syncStatusMsg.style.color = "#a38c90";
+            });
+        }
 
         if (vocabSearch && vocabSort && vocabFilter) {
             ['keydown', 'keyup', 'keypress'].forEach(evt => {
@@ -1625,10 +1841,15 @@
             scrollArea.style.display = 'none';
             repliesArea.style.display = 'none';
             flashArea.style.display = 'none';
+            cloudArea.style.display = 'none';
             vocabArea.style.display = 'flex';
             backBtn.style.display = 'inline-block';
-            fetchBeanReplies(() => renderSavedVocab(shadowRoot));
-            renderSavedVocab(shadowRoot);
+            
+            // 進入 Saved Words 時從雲端 Pull 最新狀態
+            pullVocabFromCloud(() => {
+                fetchBeanReplies(() => renderSavedVocab(shadowRoot));
+                renderSavedVocab(shadowRoot);
+            });
         });
 
         repliesOpt.addEventListener('click', () => {
@@ -1637,6 +1858,7 @@
             scrollArea.style.display = 'none';
             vocabArea.style.display = 'none';
             flashArea.style.display = 'none';
+            cloudArea.style.display = 'none';
             repliesArea.style.display = 'flex';
             backBtn.style.display = 'inline-block';
             fetchBeanReplies(() => renderBeanReplies(shadowRoot));
@@ -1649,11 +1871,26 @@
             scrollArea.style.display = 'none';
             vocabArea.style.display = 'none';
             repliesArea.style.display = 'none';
+            cloudArea.style.display = 'none';
             flashArea.style.display = 'flex';
             backBtn.style.display = 'inline-block';
             
-            renderFlashcardSetup(shadowRoot);
-            fetchBeanReplies();
+            // 進入 Flashcards 前從雲端拉取最新的 inDeck 狀態
+            pullVocabFromCloud(() => {
+                renderFlashcardSetup(shadowRoot);
+                fetchBeanReplies();
+            });
+        });
+
+        cloudOpt.addEventListener('click', () => {
+            hideAllPopups();
+            toolsMenu.style.display = 'none';
+            scrollArea.style.display = 'none';
+            vocabArea.style.display = 'none';
+            repliesArea.style.display = 'none';
+            flashArea.style.display = 'none';
+            cloudArea.style.display = 'flex';
+            backBtn.style.display = 'inline-block';
         });
 
         backBtn.addEventListener('click', () => {
@@ -1661,6 +1898,7 @@
             vocabArea.style.display = 'none';
             repliesArea.style.display = 'none';
             flashArea.style.display = 'none';
+            cloudArea.style.display = 'none';
             backBtn.style.display = 'none';
             scrollArea.style.display = 'flex';
             scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
@@ -1678,6 +1916,7 @@
         const vocabArea = shadowRoot.getElementById('saved-vocab-area');
         const repliesArea = shadowRoot.getElementById('bean-replies-area');
         const flashArea = shadowRoot.getElementById('flash-card-area');
+        const cloudArea = shadowRoot.getElementById('cloud-sync-area');
         const backBtn = shadowRoot.getElementById('back-to-subs-btn');
         const toolsMenu = shadowRoot.getElementById('mandarin-tools-menu');
 
@@ -1685,6 +1924,7 @@
         if (scrollArea) scrollArea.style.display = 'none';
         if (vocabArea) vocabArea.style.display = 'none';
         if (flashArea) flashArea.style.display = 'none';
+        if (cloudArea) cloudArea.style.display = 'none';
         if (repliesArea) repliesArea.style.display = 'flex';
         if (backBtn) backBtn.style.display = 'inline-block';
 
@@ -1712,6 +1952,7 @@
         const vocabArea = shadowRoot.getElementById('saved-vocab-area');
         const repliesArea = shadowRoot.getElementById('bean-replies-area');
         const flashArea = shadowRoot.getElementById('flash-card-area');
+        const cloudArea = shadowRoot.getElementById('cloud-sync-area');
         const backBtn = shadowRoot.getElementById('back-to-subs-btn');
         const toolsMenu = shadowRoot.getElementById('mandarin-tools-menu');
         const searchInput = shadowRoot.getElementById('vocab-search-input');
@@ -1722,6 +1963,7 @@
         if (scrollArea) scrollArea.style.display = 'none';
         if (repliesArea) repliesArea.style.display = 'none';
         if (flashArea) flashArea.style.display = 'none';
+        if (cloudArea) cloudArea.style.display = 'none';
         if (vocabArea) vocabArea.style.display = 'flex';
         if (backBtn) backBtn.style.display = 'inline-block';
 
