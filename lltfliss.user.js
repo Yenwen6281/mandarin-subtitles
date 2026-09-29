@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.4.8
+// @version      6.4.9
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.4.8';
+const SCRIPT_VERSION = 'v6.4.9';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
 const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
@@ -87,7 +87,7 @@ function fetchUserEmailFromSyncKey(uid, callback) {
                     if (email && email.includes('@')) {
                         activeUserEmail = email.trim();
                         localStorage.setItem('eggy_active_email', activeUserEmail);
-                        console.log(`✉️ MyMemory email automatically updated to: ${activeUserEmail}`);
+                        console.log(`✉️️ MyMemory email automatically updated to: ${activeUserEmail}`);
                     }
                 }
             } catch (err) {
@@ -1064,7 +1064,9 @@ function injectSidebarUI() {
     
     sidebarHost.style.cssText = `
         width: 350px;
+        height: 100dvh;
         height: 100vh;
+        box-sizing: border-box;
         position: fixed;
         right: 0;
         top: 0;
@@ -1233,7 +1235,6 @@ function injectSidebarUI() {
             }
             .menu-item:hover { background: #f5cde2; }
             
-            /* Unified centering container for optical balance */
             .menu-item-icon-box {
                 width: 28px;
                 height: 28px;
@@ -1249,32 +1250,11 @@ function injectSidebarUI() {
                 filter: drop-shadow(0 1px 2px rgba(200, 150, 160, 0.3));
             }
 
-            /* Per-character optical scale balance */
-            .menu-icon-shin {
-                height: 26px;
-                width: auto;
-                max-width: 26px;
-            }
-            .menu-icon-kazama {
-                height: 25px;
-                width: auto;
-                max-width: 25px;
-            }
-            .menu-icon-masao {
-                height: 22px;
-                width: auto;
-                max-width: 22px;
-            }
-            .menu-icon-nene {
-                height: 22px;
-                width: auto;
-                max-width: 23px;
-            }
-            .menu-icon-bo {
-                height: 26px;
-                width: auto;
-                max-width: 24px;
-            }
+            .menu-icon-shin { height: 26px; width: auto; max-width: 26px; }
+            .menu-icon-kazama { height: 25px; width: auto; max-width: 25px; }
+            .menu-icon-masao { height: 22px; width: auto; max-width: 22px; }
+            .menu-icon-nene { height: 22px; width: auto; max-width: 23px; }
+            .menu-icon-bo { height: 26px; width: auto; max-width: 24px; }
             
             .vocab-card {
                 background: rgba(255, 255, 255, 0.92);
@@ -1312,38 +1292,17 @@ function injectSidebarUI() {
             }
             .deck-toggle-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 
-                    0 5.5px 0 #d9a8b6,
-                    0 6px 12px rgba(224, 139, 155, 0.3),
-                    inset 0 1px 1px #ffffff;
+                box-shadow: 0 5.5px 0 #d9a8b6, 0 6px 12px rgba(224, 139, 155, 0.3), inset 0 1px 1px #ffffff;
             }
             .deck-toggle-btn:active {
                 transform: translateY(2.5px) scale(0.94);
-                box-shadow: 
-                    0 1px 0 #d9a8b6,
-                    0 2px 4px rgba(224, 139, 155, 0.2),
-                    inset 0 2px 3px rgba(180, 110, 125, 0.25);
+                box-shadow: 0 1px 0 #d9a8b6, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(180, 110, 125, 0.25);
             }
             .deck-toggle-btn.in-deck {
                 background: linear-gradient(180deg, #ffc7d5 0%, #e08b9b 100%);
                 color: #ffffff;
                 border: 1px solid rgba(255, 255, 255, 0.6);
-                box-shadow: 
-                    0 3.5px 0 #ba6273,
-                    0 4px 8px rgba(224, 139, 155, 0.35),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.6);
-            }
-            .deck-toggle-btn.in-deck:hover {
-                box-shadow: 
-                    0 5.5px 0 #ba6273,
-                    0 6px 12px rgba(224, 139, 155, 0.45),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.7);
-            }
-            .deck-toggle-btn.in-deck:active {
-                box-shadow: 
-                    0 1px 0 #ba6273,
-                    0 2px 4px rgba(160, 65, 80, 0.3),
-                    inset 0 2px 3px rgba(140, 50, 65, 0.35);
+                box-shadow: 0 3.5px 0 #ba6273, 0 4px 8px rgba(224, 139, 155, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
             }
 
             .saved-icon-btn {
@@ -1382,12 +1341,8 @@ function injectSidebarUI() {
                 user-select: none;
                 transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
-            .card-speak-btn:hover {
-                transform: translateY(-2px) scale(1.08);
-            }
-            .card-speak-btn:active {
-                transform: translateY(2px) scale(0.9, 0.85);
-            }
+            .card-speak-btn:hover { transform: translateY(-2px) scale(1.08); }
+            .card-speak-btn:active { transform: translateY(2px) scale(0.9, 0.85); }
 
             .card-note-save-btn {
                 background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
@@ -1402,14 +1357,6 @@ function injectSidebarUI() {
                 user-select: none;
                 box-shadow: 0 2.5px 0 #ba6273, 0 3px 6px rgba(224, 139, 155, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.7);
                 transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
-            }
-            .card-note-save-btn:hover {
-                transform: translateY(-1.5px);
-                box-shadow: 0 4px 0 #ba6273, 0 5px 9px rgba(224, 139, 155, 0.35), inset 0 1px 1px #ffffff;
-            }
-            .card-note-save-btn:active {
-                transform: translateY(2px) scale(0.93);
-                box-shadow: 0 0.5px 0 #ba6273, inset 0 1.5px 2px rgba(140, 50, 65, 0.35);
             }
 
             .sticky-note-box {
@@ -1469,14 +1416,8 @@ function injectSidebarUI() {
                 justify-content: center;
                 user-select: none;
             }
-            .bean-nav-btn:hover {
-                background: #e08b9b;
-                color: white;
-                transform: scale(1.15);
-            }
-            .bean-nav-btn:active {
-                transform: scale(0.9) translateY(1px);
-            }
+            .bean-nav-btn:hover { background: #e08b9b; color: white; transform: scale(1.15); }
+            .bean-nav-btn:active { transform: scale(0.9) translateY(1px); }
 
             .bean-jump-btn {
                 cursor: pointer;
@@ -1494,12 +1435,7 @@ function injectSidebarUI() {
                 height: auto;
                 filter: drop-shadow(1px 2px 4px rgba(200, 150, 160, 0.4));
             }
-            .bean-jump-btn:hover {
-                transform: translateY(-2px) scale(1.18) rotate(-6deg);
-            }
-            .bean-jump-btn:active {
-                transform: translateY(2px) scale(0.85) rotate(4deg);
-            }
+            .bean-jump-btn:hover { transform: translateY(-2px) scale(1.18) rotate(-6deg); }
 
             .jump-back-btn {
                 cursor: pointer;
@@ -1519,9 +1455,6 @@ function injectSidebarUI() {
                 color: #e08b9b;
                 background: rgba(224, 139, 155, 0.18);
                 transform: scale(1.08) translateY(-1px);
-            }
-            .jump-back-btn:active {
-                transform: scale(0.82) translateY(2px);
             }
 
             .vocab-controls {
@@ -1543,16 +1476,9 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 box-sizing: border-box;
                 outline: none;
-                transition: box-shadow 0.2s;
             }
-            .vocab-search-bar:focus {
-                box-shadow: 0 0 0 2px rgba(224, 139, 155, 0.3);
-            }
-            .vocab-select-row {
-                display: flex;
-                gap: 8px;
-                width: 100%;
-            }
+
+            .vocab-select-row { display: flex; gap: 8px; width: 100%; }
             .vocab-control-select {
                 flex: 1;
                 padding: 7px 10px;
@@ -1564,10 +1490,6 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 outline: none;
                 cursor: pointer;
-                transition: box-shadow 0.2s;
-            }
-            .vocab-control-select:focus {
-                box-shadow: 0 0 0 2px rgba(224, 139, 155, 0.3);
             }
 
             .mode-picker-card {
@@ -1583,16 +1505,9 @@ function injectSidebarUI() {
                 text-align: center;
                 background-color: #fff;
             }
-            .mode-picker-card:hover {
-                transform: translateY(-3px) scale(1.02);
-                box-shadow: 0 8px 20px rgba(200, 150, 160, 0.28);
-            }
             .mode-picker-card.card-b1 {
-                background-color: #ffffff;
-                background-image: url('https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/0e228accc04a786e15a9f8aa271166eee7a5f2b6/b1.png');
+                background-image: url('${B1_BG_URL}');
                 background-size: 100% 100%;
-                background-position: center;
-                background-repeat: no-repeat;
                 min-height: 145px;
                 display: flex;
                 flex-direction: column;
@@ -1602,11 +1517,8 @@ function injectSidebarUI() {
                 padding: 24px 20px;
             }
             .mode-picker-card.card-b2 {
-                background-color: #ffffff;
                 background-image: url('https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/8651c6a44f1b8e7f87d4654e96e8bdc7c4ef52ae/b2.png');
                 background-size: 100% 100%;
-                background-position: center;
-                background-repeat: no-repeat;
                 min-height: 145px;
                 display: flex;
                 flex-direction: column;
@@ -1623,28 +1535,20 @@ function injectSidebarUI() {
                 padding: 6px 20px;
                 font-weight: 700;
                 font-size: 13px;
-                cursor: pointer;
                 display: inline-flex;
                 align-items: center;
-                justify-content: center;
                 gap: 4px;
-                box-shadow: 0 3px 6px rgba(224, 139, 155, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-            }
-            
-            .mode-picker-card:hover .fc-start-pill {
-                transform: scale(1.05);
-                box-shadow: 0 5px 10px rgba(224, 139, 155, 0.3);
-            }
-            .mode-picker-card:active .fc-start-pill {
-                transform: scale(0.92);
+                box-shadow: 0 3px 6px rgba(224, 139, 155, 0.2);
             }
 
+            /* Confined 3D context to prevent breaking out of stacking hierarchy */
             .flashcard-container { 
-                perspective: 1200px; 
+                perspective: 1000px; 
                 width: 100%; 
                 height: 280px; 
                 margin-bottom: 20px; 
+                position: relative;
+                z-index: 2;
             }
             .flashcard-inner { 
                 position: relative; 
@@ -1655,9 +1559,7 @@ function injectSidebarUI() {
                 transform-style: preserve-3d; 
                 cursor: pointer; 
             }
-            .flashcard-inner.is-flipped { 
-                transform: rotateY(180deg); 
-            }
+            .flashcard-inner.is-flipped { transform: rotateY(180deg); }
             .flashcard-face { 
                 position: absolute; 
                 width: 100%; 
@@ -1689,18 +1591,6 @@ function injectSidebarUI() {
                 outline: none;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                user-select: none;
-                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
-            }
-            .fc-speak-btn:hover {
-                transform: translateY(-2px) scale(1.12);
-            }
-            .fc-speak-btn:hover img {
-                filter: drop-shadow(1px 4px 6px rgba(150, 180, 200, 0.55));
-            }
-            .fc-speak-btn:active {
-                transform: translateY(2px) scale(0.9, 0.85);
             }
 
             .fc-btn {
@@ -1710,23 +1600,11 @@ function injectSidebarUI() {
                 border: 1.5px solid rgba(255, 255, 255, 0.85);
                 font-weight: 800;
                 font-size: 13.5px;
-                letter-spacing: 0.3px;
                 cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, opacity 0.2s;
                 color: #5c4a4d;
                 background-size: cover;
                 background-position: center;
-                background-repeat: no-repeat;
-                text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
                 box-shadow: 0 4px 10px rgba(180, 140, 150, 0.25);
-            }
-            .fc-btn:hover {
-                transform: translateY(-1.5px) scale(1.02);
-                box-shadow: 0 6px 14px rgba(180, 140, 150, 0.35);
-            }
-            .fc-btn:active {
-                transform: scale(0.92) translateY(2px);
-                box-shadow: 0 2px 4px rgba(180, 140, 150, 0.2);
             }
             .fc-btn-learn {
                 background-image: linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), url('https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/332fb8d639e5fc8f7fffc7bb2e1993fa67727681/f1.jpeg');
@@ -1746,18 +1624,6 @@ function injectSidebarUI() {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                box-shadow: 0 3px 6px rgba(224, 139, 155, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.95);
-                transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-                user-select: none;
-            }
-            #fc-clear-deck-btn:hover {
-                color: #e08b9b;
-                transform: translateY(-1.5px) scale(1.05);
-                box-shadow: 0 5px 12px rgba(224, 139, 155, 0.28);
-            }
-            #fc-clear-deck-btn:active {
-                transform: translateY(2px) scale(0.90, 0.86);
-                box-shadow: 0 1px 2px rgba(224, 139, 155, 0.2), inset 0 2px 4px rgba(180, 110, 125, 0.25);
             }
 
             #fc-restart-btn {
@@ -1769,20 +1635,7 @@ function injectSidebarUI() {
                 font-weight: 800;
                 font-size: 12.5px;
                 cursor: pointer;
-                user-select: none;
-                outline: none;
-                box-shadow: 0 4px 0 #c46b7d, 0 6px 10px rgba(224, 139, 155, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.7);
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
             }
-            #fc-restart-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 0 #c46b7d, 0 8px 14px rgba(224, 139, 155, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-            }
-            #fc-restart-btn:active {
-                transform: translateY(3px);
-                box-shadow: 0 1px 0 #c46b7d, 0 2px 4px rgba(224, 139, 155, 0.25), inset 0 2px 4px rgba(150, 60, 75, 0.3);
-            }
-
             #fc-exit-btn {
                 background: linear-gradient(180deg, #ffffff 0%, #faeef3 100%);
                 color: #7b6267;
@@ -1792,22 +1645,8 @@ function injectSidebarUI() {
                 font-weight: 700;
                 font-size: 12px;
                 cursor: pointer;
-                user-select: none;
-                outline: none;
-                box-shadow: 0 3.5px 0 #d8b2c2, 0 5px 8px rgba(200, 160, 175, 0.2), inset 0 1px 1px #ffffff;
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.15s ease;
-            }
-            #fc-exit-btn:hover {
-                color: #e08b9b;
-                transform: translateY(-2px);
-                box-shadow: 0 5.5px 0 #d8b2c2, 0 7px 12px rgba(200, 160, 175, 0.28), inset 0 1px 1px #ffffff;
-            }
-            #fc-exit-btn:active {
-                transform: translateY(2.5px);
-                box-shadow: 0 1px 0 #d8b2c2, 0 2px 4px rgba(200, 160, 175, 0.2), inset 0 2px 3px rgba(180, 130, 145, 0.25);
             }
 
-            /* Physical Tactile Visiting Saved Words Button */
             #fc-go-saved-btn {
                 margin: 24px auto 0;
                 display: block;
@@ -1819,22 +1658,8 @@ function injectSidebarUI() {
                 font-weight: 800;
                 font-size: 13px;
                 cursor: pointer;
-                user-select: none;
-                outline: none;
-                box-shadow: 0 4px 0 #d9a8b6, 0 6px 12px rgba(224, 139, 155, 0.25), inset 0 1px 1px #ffffff;
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.15s ease;
-            }
-            #fc-go-saved-btn:hover {
-                transform: translateY(-2.5px);
-                color: #d86d81;
-                box-shadow: 0 6.5px 0 #d9a8b6, 0 9px 16px rgba(224, 139, 155, 0.35), inset 0 1px 1px #ffffff;
-            }
-            #fc-go-saved-btn:active {
-                transform: translateY(3px) scale(0.96);
-                box-shadow: 0 1px 0 #d9a8b6, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(180, 110, 125, 0.25);
             }
 
-            /* Physical Tactile Connect & Unlock Button */
             .connect-btn {
                 background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
                 color: white;
@@ -1844,21 +1669,8 @@ function injectSidebarUI() {
                 font-weight: 800;
                 font-size: 13.5px;
                 cursor: pointer;
-                user-select: none;
-                outline: none;
-                box-shadow: 0 4px 0 #ba6273, 0 6px 12px rgba(224, 139, 155, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.7);
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease;
-            }
-            .connect-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 0 #ba6273, 0 8px 16px rgba(224, 139, 155, 0.45), inset 0 1px 1px #ffffff;
-            }
-            .connect-btn:active {
-                transform: translateY(3px) scale(0.96);
-                box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(140, 50, 65, 0.35);
             }
 
-            /* Tactile 3D Disconnect Button */
             #clear-sync-key-btn {
                 background: linear-gradient(180deg, #ffffff 0%, #faeef3 100%);
                 color: #7b6267;
@@ -1868,26 +1680,26 @@ function injectSidebarUI() {
                 font-weight: 700;
                 font-size: 12.5px;
                 cursor: pointer;
-                user-select: none;
-                outline: none;
-                box-shadow: 0 3.5px 0 #d8b2c2, 0 5px 9px rgba(200, 160, 175, 0.22), inset 0 1px 1px #ffffff;
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.15s ease;
-            }
-            #clear-sync-key-btn:hover {
-                color: #e08b9b;
-                transform: translateY(-2px);
-                box-shadow: 0 5.5px 0 #d8b2c2, 0 7px 12px rgba(200, 160, 175, 0.3), inset 0 1px 1px #ffffff;
-            }
-            #clear-sync-key-btn:active {
-                transform: translateY(2.5px) scale(0.95);
-                box-shadow: 0 1px 0 #d8b2c2, 0 2px 4px rgba(200, 160, 175, 0.2), inset 0 2px 3px rgba(180, 130, 145, 0.25);
             }
 
-            /* Pure Reference Dictionary Styles */
+            /* Scroll containers isolated strictly below header */
+            #transcript-scroll-area,
+            #saved-vocab-area,
+            #bean-replies-area,
+            #flash-card-area,
+            #dict-search-area,
+            #cloud-sync-area {
+                position: relative;
+                z-index: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                box-sizing: border-box;
+            }
+
             #dict-search-area {
                 display: none;
                 flex: 1;
-                overflow-y: auto;
                 flex-direction: column;
                 padding-right: 4px;
                 padding-bottom: 24px;
@@ -1904,18 +1716,18 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 box-sizing: border-box;
                 outline: none;
-                transition: box-shadow 0.2s, border-color 0.2s;
                 margin-bottom: 12px;
             }
-            .dict-search-box:focus {
-                box-shadow: 0 0 0 2px rgba(224, 139, 155, 0.3);
-                border-color: #e08b9b;
+
+            #mandarin-tools-menu {
+                z-index: 100001 !important;
+                transform: translateZ(10000px);
             }
         </style>
 
         <div style="display: flex; flex-direction: column; height: 100%; box-sizing: border-box; padding: 25px; color: #5c4a4d;">
-            <!-- HEADER AREA (With z-index so dropdown stays above body content) -->
-            <div style="position: relative; z-index: 9999; flex-shrink: 0; text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(245, 205, 226, 0.8); margin-bottom: 15px; background: rgba(252, 248, 245, 0.6); backdrop-filter: blur(4px); border-radius: 12px; padding-top: 10px;">
+            <!-- HEADER CONTAINER: Highest stacking context so all 5 menu options always stay above cards & text -->
+            <div style="position: relative; z-index: 100000; flex-shrink: 0; text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(245, 205, 226, 0.8); margin-bottom: 15px; background: rgba(252, 248, 245, 0.95); backdrop-filter: blur(8px); border-radius: 12px; padding-top: 10px; transform: translateZ(9999px);">
                 <div id="mandarin-platform-text">
                     ${getPlatformText()}
                 </div>
@@ -1933,8 +1745,8 @@ function injectSidebarUI() {
                     ⬅ Back to Subtitles
                 </button>
 
-                <!-- DROPDOWN MENU (High z-index to stay above 3D cards) -->
-                <div id="mandarin-tools-menu" style="display: none; position: absolute; top: 52px; right: 8px; background: rgba(255, 255, 255, 0.96); border: 2px solid #f5cde2; border-radius: 14px; box-shadow: 0 6px 20px rgba(139, 166, 182, 0.25); width: 185px; text-align: left; padding: 10px; z-index: 99999; animation: menuPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <!-- DROPDOWN MENU: Covers Saved Words, Bean's Notes, Flashcards, Dictionary, Settings -->
+                <div id="mandarin-tools-menu" style="display: none; position: absolute; top: 52px; right: 8px; background: rgba(255, 255, 255, 0.98); border: 2px solid #f5cde2; border-radius: 14px; box-shadow: 0 8px 24px rgba(139, 166, 182, 0.35); width: 185px; text-align: left; padding: 10px; animation: menuPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
                     <div class="menu-item" id="menu-opt-saved">
                         <span>Saved Words</span>
                         <div class="menu-item-icon-box">
@@ -1985,7 +1797,7 @@ function injectSidebarUI() {
             </div>
 
             <!-- SUBTITLE FEED AREA (Default) -->
-            <div id="transcript-scroll-area" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 4px; padding-bottom: 20px;">
+            <div id="transcript-scroll-area" style="flex: 1; display: flex; flex-direction: column; gap: 15px; padding-right: 4px; padding-bottom: 20px;">
                 <div id="transcript-feed" style="display: flex; flex-direction: column; gap: 15px;">
                     <div id="waiting-msg" style="text-align: center; color: #a38c90; font-size: 14px; font-style: italic; margin-top: 20px; text-shadow: 1px 1px 2px white;">
                         Well... I'm just waiting for the next line 🤓👆
@@ -1994,7 +1806,7 @@ function injectSidebarUI() {
             </div>
 
             <!-- SAVED VOCABULARY AREA -->
-            <div id="saved-vocab-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding-right: 4px; padding-bottom: 20px;">
+            <div id="saved-vocab-area" style="display: none; flex: 1; flex-direction: column; padding-right: 4px; padding-bottom: 20px;">
                 <div class="vocab-controls" id="vocab-controls-container">
                     <input type="text" id="vocab-search-input" class="vocab-search-bar" placeholder="🔍 Search word, pinyin, or meaning...">
                     <div class="vocab-select-row">
@@ -2018,10 +1830,10 @@ function injectSidebarUI() {
             </div>
 
             <!-- BEAN'S EXPLANATIONS AREA -->
-            <div id="bean-replies-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding-right: 4px; padding-bottom: 20px;"></div>
+            <div id="bean-replies-area" style="display: none; flex: 1; flex-direction: column; padding-right: 4px; padding-bottom: 20px;"></div>
 
             <!-- FLASHCARDS AREA -->
-            <div id="flash-card-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding-right: 4px; padding-bottom: 20px;"></div>
+            <div id="flash-card-area" style="display: none; flex: 1; flex-direction: column; padding-right: 4px; padding-bottom: 20px;"></div>
 
             <!-- PURE REFERENCE DICTIONARY AREA -->
             <div id="dict-search-area">
@@ -2036,7 +1848,7 @@ function injectSidebarUI() {
             </div>
 
             <!-- CLOUD SYNC KEY AREA -->
-            <div id="cloud-sync-area" style="display: none; flex: 1; overflow-y: auto; flex-direction: column; padding: 10px 4px 20px;">
+            <div id="cloud-sync-area" style="display: none; flex: 1; flex-direction: column; padding: 10px 4px 20px;">
                 <div style="background: rgba(255, 255, 255, 0.95); border: 2px solid #f5cde2; border-radius: 16px; padding: 18px 16px; text-align: center; box-shadow: 0 4px 12px rgba(200, 150, 160, 0.15);">
                     <h3 style="margin: 0 0 8px; color: #e08b9b; font-size: 17px;">☁️ Real-time Cloud Sync</h3>
                     <p style="margin: 0 0 14px; font-size: 12.5px; color: #7b6267; line-height: 1.45;">
@@ -2093,7 +1905,6 @@ function injectSidebarUI() {
     const clearSyncBtn = shadowRoot.getElementById('clear-sync-key-btn');
     const syncStatusMsg = shadowRoot.getElementById('sync-status-msg');
 
-    // UI State Enforcer: Locks UI if key is missing
     function enforceKeyPresence() {
         const activeKey = getSyncKey();
         if (!activeKey) {
@@ -2121,7 +1932,6 @@ function injectSidebarUI() {
         }
     }
 
-    // Verify key against Firestore, save email, and unlock
     function verifyAndUnlock(keyVal, statusEl, onDone) {
         if (!keyVal) {
             statusEl.textContent = "Please enter a key!";
@@ -2151,13 +1961,11 @@ function injectSidebarUI() {
         });
     }
 
-    // Connect from Onboarding Gate
     gateBtn.addEventListener('click', () => {
         const key = (gateInput.value || '').trim();
         verifyAndUnlock(key, gateStatusMsg);
     });
 
-    // Disconnect: Clears local storage and restores onboarding gate
     clearSyncBtn.addEventListener('click', (e) => {
         e.stopPropagation();
 
@@ -2185,7 +1993,6 @@ function injectSidebarUI() {
         enforceKeyPresence();
     });
 
-    // Run gatekeeper check on open
     enforceKeyPresence();
 
     if (vocabSearch && vocabSort && filterSelect && dictInput) {
@@ -2311,7 +2118,7 @@ function injectSidebarUI() {
         scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
     });
 
-    // --- TRANSLATION-FIRST ENGINE (GOOGLE & MYMEMORY DUAL FALLBACK) ---
+    // --- TRANSLATION ENGINE ---
     function translateEnToZh(query) {
         return new Promise((resolve) => {
             const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(query)}`;
@@ -2330,7 +2137,6 @@ function injectSidebarUI() {
                         } catch (e) {}
                     }
                     
-                    // Fallback to MyMemory
                     let myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(query)}&langpair=en|zh-CN`;
                     if (activeUserEmail) myMemoryUrl += `&de=${encodeURIComponent(activeUserEmail)}`;
                     
@@ -2357,7 +2163,6 @@ function injectSidebarUI() {
         });
     }
 
-    // --- TRANSLATION-FIRST REFERENCE DICTIONARY ---
     let dictDebounceTimer = null;
 
     dictInput.addEventListener('input', () => {
@@ -2388,7 +2193,6 @@ function injectSidebarUI() {
         let results = [];
 
         if (isChinese) {
-            // 1. 中文查詢：取得英譯
             const engTranslation = await translateMandarinToEnglish(query);
             let pinyinStr = '';
             try {
@@ -2407,7 +2211,6 @@ function injectSidebarUI() {
                 definitions: [engTranslation]
             });
 
-            // 附帶列出含有該漢字的 HSK 詞條
             const hskSub = hskVocabArray.filter(v => v.hanzi !== query && v.hanzi.includes(query)).slice(0, 5);
             results = results.concat(hskSub.map(v => ({
                 hanzi: v.hanzi,
@@ -2417,7 +2220,6 @@ function injectSidebarUI() {
             })));
 
         } else {
-            // 2. 英文或拼音查詢：翻譯優先 (Translation-First)
             const translatedZh = await translateEnToZh(query);
 
             if (translatedZh && /[\u4e00-\u9fa5]/.test(translatedZh)) {
@@ -2439,7 +2241,6 @@ function injectSidebarUI() {
                 });
             }
 
-            // 拼音前綴輔助配對（若使用者輸入為拼音）
             const cleanQuery = stripPinyinTones(qLower);
             const pinyinMatches = hskVocabArray.filter(v => {
                 const rawPin = (v.pinyin || '').toLowerCase();
@@ -2592,7 +2393,7 @@ function jumpBackToSavedWord(shadowRoot, targetHanzi) {
     }, 80);
 }
 
-// --- RENDER SAVED VOCAB (WITH ACCURATE TIMESTAMP SORTING) ---
+// --- RENDER SAVED VOCAB ---
 function renderSavedVocab(shadowRoot) {
     const listContainer = shadowRoot.getElementById('saved-vocab-list');
     const controlsContainer = shadowRoot.getElementById('vocab-controls-container');
@@ -2636,20 +2437,11 @@ function renderSavedVocab(shadowRoot) {
         });
     }
 
-    // Precise timestamp sorting
     const sortMethod = sortSelect.value;
     if (sortMethod === 'time_desc') {
-        currentData.sort((a, b) => {
-            const timeA = a.savedAt || a.updatedAt || 0;
-            const timeB = b.savedAt || b.updatedAt || 0;
-            return timeB - timeA;
-        });
+        currentData.sort((a, b) => (b.savedAt || b.updatedAt || 0) - (a.savedAt || a.updatedAt || 0));
     } else if (sortMethod === 'time_asc') {
-        currentData.sort((a, b) => {
-            const timeA = a.savedAt || a.updatedAt || 0;
-            const timeB = b.savedAt || b.updatedAt || 0;
-            return timeA - timeB;
-        });
+        currentData.sort((a, b) => (a.savedAt || a.updatedAt || 0) - (b.savedAt || b.updatedAt || 0));
     } else if (sortMethod === 'pinyin_asc') {
         currentData.sort((a, b) => (a.pinyin || '').localeCompare(b.pinyin || ''));
     } else if (sortMethod === 'pinyin_desc') {
@@ -3233,38 +3025,73 @@ function renderCurrentFlashcard(shadowRoot) {
     });
 }
 
+// --- HARDENED MULTI-TIER SAFARI SPEECH SYNTHESIS ENGINE ---
+window._activeTtsUtterance = null;
+window._activeTtsAudio = null;
+
+function hasLocalMandarinVoice() {
+    if (!('speechSynthesis' in window)) return false;
+    const voices = window.speechSynthesis.getVoices();
+    return voices.some(v => v.lang && (v.lang.startsWith('zh') || v.lang.includes('cmn')));
+}
+
 function playTTS(text) {
-    try {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Speech synthesis not supported in this browser environment.");
-            return;
-        }
+    if (!text) return;
+    const cleanText = text.trim();
 
-        window.speechSynthesis.cancel();
+    // 1. Primary: Native WebKit SpeechSynthesis (uses downloaded macOS Chinese voices)
+    if ('speechSynthesis' in window && hasLocalMandarinVoice()) {
+        try {
+            window.speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-CN'; 
-        utterance.rate = 0.85; 
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 0.85;
+            utterance.pitch = 1.0;
+            utterance.lang = 'zh-CN';
 
-        const voices = window.speechSynthesis.getVoices();
-        if (voices && voices.length > 0) {
-            // Find system Chinese voice (zh-CN, zh-TW, zh-HK)
-            const zhVoice = voices.find(v => v.lang && (v.lang.startsWith('zh') || v.lang.includes('cmn')));
+            const voices = window.speechSynthesis.getVoices();
+            const zhVoice = voices.find(v => v.lang === 'zh-CN' || v.lang === 'zh_CN') ||
+                            voices.find(v => v.lang && v.lang.startsWith('zh')) ||
+                            voices.find(v => v.name && (v.name.includes('Tingting') || v.name.includes('Sinji') || v.name.includes('Chinese')));
             if (zhVoice) {
                 utterance.voice = zhVoice;
+                utterance.lang = zhVoice.lang;
             }
+
+            utterance.onend = () => { window._activeTtsUtterance = null; };
+            utterance.onerror = (e) => {
+                console.warn("Safari TTS playback error:", e);
+                window._activeTtsUtterance = null;
+            };
+
+            // Retain on window object to prevent Safari garbage collector from killing it mid-speech
+            window._activeTtsUtterance = utterance;
+
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+            }
+
+            window.speechSynthesis.speak(utterance);
+            return;
+        } catch (e) {
+            console.warn("Native TTS error, using fallback audio:", e);
         }
+    }
 
-        utterance.onerror = (e) => console.warn("TTS utterance error:", e);
-
-        // Resume if stalled
-        if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
+    // 2. Seamless Fallback: Native Audio Stream for Macs without built-in Chinese voices
+    try {
+        if (window._activeTtsAudio) {
+            window._activeTtsAudio.pause();
+            window._activeTtsAudio = null;
         }
-
-        window.speechSynthesis.speak(utterance);
-    } catch (e) {
-        console.warn("TTS error:", e);
+        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=zh-CN&client=tw-ob`;
+        const audio = new Audio(audioUrl);
+        window._activeTtsAudio = audio;
+        audio.play().catch(err => {
+            console.warn("Fallback audio playback failed:", err);
+        });
+    } catch (err) {
+        console.warn("TTS completely failed:", err);
     }
 }
 
@@ -3541,9 +3368,7 @@ function showVocabPopup(event, vocab) {
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(245, 205, 226, 0.6); gap: 10px;">
-            <button id="vocab-close-btn" title="Close">
-                ✕
-            </button>
+            <button id="vocab-close-btn" title="Close">✕</button>
             
             <button id="popup-deck-btn" class="deck-toggle-btn ${inDeck ? 'in-deck' : ''}" style="display: ${alreadySaved ? 'inline-flex' : 'none'};" title="Toggle Flashcard Deck">
                 <span>${inDeck ? '✓' : '+'}</span> Flashcard
@@ -3808,9 +3633,7 @@ function toggleReportModal(hanzi, onSentCallback) {
 
         <textarea id="report-input-msg" rows="3" placeholder="What feels confusing or needs a better explanation? (optional)" style="width: 100%; border: 1px solid #f5cde2; border-radius: 8px; padding: 8px; font-family: inherit; font-size: 12.5px; color: #5c4a4d; outline: none; box-sizing: border-box; resize: none; margin-bottom: 14px; line-height: 1.4;"></textarea>
 
-        <button id="send-report-btn">
-            Send to Bean 🧸
-        </button>
+        <button id="send-report-btn">Send to Bean 🧸</button>
     `;
 
     reportModal.style.display = 'block';
@@ -3893,7 +3716,7 @@ function toggleReportModal(hanzi, onSentCallback) {
     });
 }
 
-// --- 7. TRANSLATION ENGINE ---
+// --- 7. TRANSLATION ENGINE & CACHE ---
 const TRANS_CACHE_STORAGE_KEY = 'mandarin_persistent_trans_cache_v1';
 let googleCoolDownUntil = 0;
 
@@ -3960,8 +3783,8 @@ function fetchGoogleTranslate(text) {
                 }
                 resolve(null);
             },
-            onerror: function() { resolve(null); },
-            ontimeout: function() { resolve(null); }
+            onerror: () => resolve(null),
+            ontimeout: () => resolve(null)
         });
     });
 }
@@ -3991,8 +3814,8 @@ function fetchMyMemoryTranslate(text) {
                     resolve(text);
                 }
             },
-            onerror: function() { resolve(text); },
-            ontimeout: function() { resolve(text); }
+            onerror: () => resolve(text),
+            ontimeout: () => resolve(text)
         });
     });
 }
