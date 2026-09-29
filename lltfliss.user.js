@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.4.8
+// @version      6.4.7
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/refs/heads/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/refs/heads/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.4.8';
+const SCRIPT_VERSION = 'v6.4.7';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
 const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
@@ -56,6 +56,14 @@ const FLASHCARD_BG_IMAGES_ENGLISH = [
 let flashcardSessionCardCount = 0;
 const DEFAULT_MYMEMORY_EMAIL = 'yenwen6281plus@gmail.com';
 let activeUserEmail = localStorage.getItem('eggy_active_email') || '';
+
+// Pre-warm SpeechSynthesis voices
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
 
 // Look up user's Gmail address in Firestore using Sync Key (UID)
 function fetchUserEmailFromSyncKey(uid, callback) {
@@ -1906,8 +1914,8 @@ function injectSidebarUI() {
         </style>
 
         <div style="display: flex; flex-direction: column; height: 100%; box-sizing: border-box; padding: 25px; color: #5c4a4d;">
-            <!-- HEADER AREA -->
-            <div style="position: relative; flex-shrink: 0; text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(245, 205, 226, 0.8); margin-bottom: 15px; background: rgba(252, 248, 245, 0.6); backdrop-filter: blur(4px); border-radius: 12px; padding-top: 10px;">
+            <!-- HEADER AREA (With z-index so dropdown stays above body content) -->
+            <div style="position: relative; z-index: 9999; flex-shrink: 0; text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(245, 205, 226, 0.8); margin-bottom: 15px; background: rgba(252, 248, 245, 0.6); backdrop-filter: blur(4px); border-radius: 12px; padding-top: 10px;">
                 <div id="mandarin-platform-text">
                     ${getPlatformText()}
                 </div>
@@ -1925,8 +1933,8 @@ function injectSidebarUI() {
                     ⬅ Back to Subtitles
                 </button>
 
-                <!-- DROPDOWN MENU -->
-                <div id="mandarin-tools-menu" style="display: none; position: absolute; top: 52px; right: 8px; background: rgba(255, 255, 255, 0.96); border: 2px solid #f5cde2; border-radius: 14px; box-shadow: 0 6px 20px rgba(139, 166, 182, 0.25); width: 185px; text-align: left; padding: 10px; z-index: 100; animation: menuPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <!-- DROPDOWN MENU (High z-index to stay above 3D cards) -->
+                <div id="mandarin-tools-menu" style="display: none; position: absolute; top: 52px; right: 8px; background: rgba(255, 255, 255, 0.96); border: 2px solid #f5cde2; border-radius: 14px; box-shadow: 0 6px 20px rgba(139, 166, 182, 0.25); width: 185px; text-align: left; padding: 10px; z-index: 99999; animation: menuPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
                     <div class="menu-item" id="menu-opt-saved">
                         <span>Saved Words</span>
                         <div class="menu-item-icon-box">
@@ -3227,10 +3235,33 @@ function renderCurrentFlashcard(shadowRoot) {
 
 function playTTS(text) {
     try {
+        if (!('speechSynthesis' in window)) {
+            console.warn("Speech synthesis not supported in this browser environment.");
+            return;
+        }
+
         window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'zh-CN'; 
         utterance.rate = 0.85; 
+
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+            // Find system Chinese voice (zh-CN, zh-TW, zh-HK)
+            const zhVoice = voices.find(v => v.lang && (v.lang.startsWith('zh') || v.lang.includes('cmn')));
+            if (zhVoice) {
+                utterance.voice = zhVoice;
+            }
+        }
+
+        utterance.onerror = (e) => console.warn("TTS utterance error:", e);
+
+        // Resume if stalled
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        }
+
         window.speechSynthesis.speak(utterance);
     } catch (e) {
         console.warn("TTS error:", e);
