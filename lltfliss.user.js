@@ -19,7 +19,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.4.6';
+const SCRIPT_VERSION = 'v6.4.7';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
 const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
