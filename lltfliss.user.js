@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.4.9
+// @version      6.5.1
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
-// @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
+// @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, universal cross-device TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
 // @match        *://*.netflix.com/*
 // @match        *://*.youtube.com/*
 // @require      https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.7/dist/index.js
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.4.9';
+const SCRIPT_VERSION = 'v6.5.1';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
 const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
@@ -87,7 +87,7 @@ function fetchUserEmailFromSyncKey(uid, callback) {
                     if (email && email.includes('@')) {
                         activeUserEmail = email.trim();
                         localStorage.setItem('eggy_active_email', activeUserEmail);
-                        console.log(`✉️️ MyMemory email automatically updated to: ${activeUserEmail}`);
+                        console.log(`✉ MyMemory email automatically updated to: ${activeUserEmail}`);
                     }
                 }
             } catch (err) {
@@ -160,7 +160,7 @@ function syncVocabToCloud(vocab) {
         data: JSON.stringify(payload),
         onload: function(res) {
             if (res.status === 200) {
-                console.log(`☁️ Synced [${vocab.hanzi}] to Firebase!`);
+                console.log(`☁ Synced [${vocab.hanzi}] to Firebase!`);
             }
         }
     });
@@ -1124,16 +1124,18 @@ function injectSidebarUI() {
                 cursor: pointer;
                 padding: 8px;
                 border-radius: 12px;
-                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
+                transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
+                outline: none;
+                user-select: none;
             }
             #mandarin-menu-btn:hover {
-                transform: scale(1.15);
-                background: rgba(139, 166, 182, 0.15);
+                transform: translateY(-2px) scale(1.12);
+                background: rgba(139, 166, 182, 0.18);
             }
             #mandarin-menu-btn:active {
-                transform: scale(0.8) translateY(2px);
-                background: rgba(139, 166, 182, 0.25);
-                box-shadow: inset 0 3px 6px rgba(139, 166, 182, 0.4);
+                transform: translateY(2px) scale(0.88);
+                background: rgba(139, 166, 182, 0.28);
+                box-shadow: inset 0 2px 5px rgba(139, 166, 182, 0.4);
             }
 
             #back-to-subs-btn {
@@ -1159,7 +1161,7 @@ function injectSidebarUI() {
                 box-shadow: 0 5.5px 0 #b3cddb, 0 8px 14px rgba(139, 166, 182, 0.32), inset 0 1px 1px #ffffff;
             }
             #back-to-subs-btn:active {
-                transform: translateY(2.5px);
+                transform: translateY(2.5px) scale(0.95);
                 box-shadow: 0 1px 0 #b3cddb, 0 2px 4px rgba(139, 166, 182, 0.2), inset 0 2px 3px rgba(139, 166, 182, 0.3);
             }
 
@@ -1228,12 +1230,19 @@ function injectSidebarUI() {
                 font-size: 14px;
                 color: #5c4a4d;
                 font-weight: 600;
-                transition: background 0.2s;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                user-select: none;
             }
-            .menu-item:hover { background: #f5cde2; }
+            .menu-item:hover { 
+                background: #f5cde2; 
+                transform: translateX(3px);
+            }
+            .menu-item:active {
+                transform: translateX(1px) scale(0.97);
+            }
             
             .menu-item-icon-box {
                 width: 28px;
@@ -1304,6 +1313,12 @@ function injectSidebarUI() {
                 border: 1px solid rgba(255, 255, 255, 0.6);
                 box-shadow: 0 3.5px 0 #ba6273, 0 4px 8px rgba(224, 139, 155, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
             }
+            .deck-toggle-btn.in-deck:hover {
+                box-shadow: 0 5.5px 0 #ba6273, 0 6px 12px rgba(224, 139, 155, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+            }
+            .deck-toggle-btn.in-deck:active {
+                box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(160, 65, 80, 0.3), inset 0 2px 3px rgba(140, 50, 65, 0.35);
+            }
 
             .saved-icon-btn {
                 cursor: pointer;
@@ -1358,6 +1373,14 @@ function injectSidebarUI() {
                 box-shadow: 0 2.5px 0 #ba6273, 0 3px 6px rgba(224, 139, 155, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.7);
                 transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
             }
+            .card-note-save-btn:hover {
+                transform: translateY(-1.5px);
+                box-shadow: 0 4px 0 #ba6273, 0 5px 9px rgba(224, 139, 155, 0.35), inset 0 1px 1px #ffffff;
+            }
+            .card-note-save-btn:active {
+                transform: translateY(2px) scale(0.93);
+                box-shadow: 0 0.5px 0 #ba6273, inset 0 1.5px 2px rgba(140, 50, 65, 0.35);
+            }
 
             .sticky-note-box {
                 margin-top: 8px;
@@ -1404,20 +1427,30 @@ function injectSidebarUI() {
             .bean-nav-btn {
                 cursor: pointer;
                 background: rgba(139, 166, 182, 0.2);
-                border: none;
-                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.7);
+                border-radius: 6px;
                 color: #406277;
                 font-size: 10px;
-                padding: 2px 6px;
+                padding: 3px 7px;
                 font-weight: bold;
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, color 0.2s ease;
+                box-shadow: 0 2px 0 rgba(139, 166, 182, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 user-select: none;
+                outline: none;
             }
-            .bean-nav-btn:hover { background: #e08b9b; color: white; transform: scale(1.15); }
-            .bean-nav-btn:active { transform: scale(0.9) translateY(1px); }
+            .bean-nav-btn:hover { 
+                background: #e08b9b; 
+                color: white; 
+                transform: translateY(-1.5px) scale(1.1); 
+                box-shadow: 0 3.5px 0 #ba6273, 0 3px 6px rgba(224, 139, 155, 0.25);
+            }
+            .bean-nav-btn:active { 
+                transform: translateY(1.5px) scale(0.92); 
+                box-shadow: 0 0.5px 0 #ba6273, inset 0 1px 2px rgba(140, 50, 65, 0.3);
+            }
 
             .bean-jump-btn {
                 cursor: pointer;
@@ -1428,6 +1461,7 @@ function injectSidebarUI() {
                 border: none;
                 padding: 2px;
                 user-select: none;
+                outline: none;
                 transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
             }
             .bean-jump-btn img {
@@ -1436,6 +1470,7 @@ function injectSidebarUI() {
                 filter: drop-shadow(1px 2px 4px rgba(200, 150, 160, 0.4));
             }
             .bean-jump-btn:hover { transform: translateY(-2px) scale(1.18) rotate(-6deg); }
+            .bean-jump-btn:active { transform: translateY(2px) scale(0.88) rotate(4deg); }
 
             .jump-back-btn {
                 cursor: pointer;
@@ -1446,15 +1481,23 @@ function injectSidebarUI() {
                 font-weight: 700;
                 color: #8ba6b6;
                 background: rgba(139, 166, 182, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                box-shadow: 0 2px 0 rgba(139, 166, 182, 0.25), inset 0 1px 1px white;
                 padding: 4px 9px;
                 border-radius: 8px;
                 user-select: none;
-                transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, color 0.2s ease;
+                outline: none;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease;
             }
             .jump-back-btn:hover {
                 color: #e08b9b;
                 background: rgba(224, 139, 155, 0.18);
-                transform: scale(1.08) translateY(-1px);
+                transform: translateY(-1.5px) scale(1.06);
+                box-shadow: 0 3.5px 0 #d9a8b6, inset 0 1px 1px white;
+            }
+            .jump-back-btn:active {
+                transform: translateY(1.5px) scale(0.94);
+                box-shadow: 0 0.5px 0 #d9a8b6, inset 0 1px 2px rgba(180, 110, 125, 0.25);
             }
 
             .vocab-controls {
@@ -1476,6 +1519,11 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 box-sizing: border-box;
                 outline: none;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .vocab-search-bar:focus {
+                border-color: #e08b9b;
+                box-shadow: 0 0 0 3px rgba(224, 139, 155, 0.18);
             }
 
             .vocab-select-row { display: flex; gap: 8px; width: 100%; }
@@ -1490,6 +1538,17 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 outline: none;
                 cursor: pointer;
+                box-shadow: 0 2px 0 rgba(200, 150, 160, 0.15);
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, border-color 0.2s ease;
+            }
+            .vocab-control-select:hover {
+                transform: translateY(-1px);
+                border-color: #e08b9b;
+                box-shadow: 0 3.5px 0 rgba(200, 150, 160, 0.25);
+            }
+            .vocab-control-select:active {
+                transform: translateY(1.5px);
+                box-shadow: 0 0.5px 0 rgba(200, 150, 160, 0.15);
             }
 
             .mode-picker-card {
@@ -1499,12 +1558,22 @@ function injectSidebarUI() {
                 margin-bottom: 15px;
                 cursor: pointer;
                 overflow: hidden;
-                box-shadow: 0 4px 14px rgba(200, 150, 160, 0.18);
-                border: 1px solid rgba(245, 205, 226, 0.7);
-                transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+                box-shadow: 0 4px 0 #d9a8b6, 0 6px 14px rgba(200, 150, 160, 0.22);
+                border: 1.5px solid rgba(255, 255, 255, 0.9);
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
                 text-align: center;
                 background-color: #fff;
+                user-select: none;
             }
+            .mode-picker-card:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0 7px 0 #d9a8b6, 0 10px 20px rgba(200, 150, 160, 0.3);
+            }
+            .mode-picker-card:active {
+                transform: translateY(3px) scale(0.97);
+                box-shadow: 0 1px 0 #d9a8b6, 0 3px 6px rgba(200, 150, 160, 0.2);
+            }
+
             .mode-picker-card.card-b1 {
                 background-image: url('${B1_BG_URL}');
                 background-size: 100% 100%;
@@ -1538,7 +1607,7 @@ function injectSidebarUI() {
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
-                box-shadow: 0 3px 6px rgba(224, 139, 155, 0.2);
+                box-shadow: 0 3px 0 #d9a8b6, 0 3px 6px rgba(224, 139, 155, 0.2);
             }
 
             /* Confined 3D context to prevent breaking out of stacking hierarchy */
@@ -1549,6 +1618,10 @@ function injectSidebarUI() {
                 margin-bottom: 20px; 
                 position: relative;
                 z-index: 2;
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            .flashcard-container:active {
+                transform: scale(0.985);
             }
             .flashcard-inner { 
                 position: relative; 
@@ -1591,6 +1664,14 @@ function injectSidebarUI() {
                 outline: none;
                 display: flex;
                 align-items: center;
+                user-select: none;
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            .fc-speak-btn:hover {
+                transform: translateY(-2px) scale(1.1);
+            }
+            .fc-speak-btn:active {
+                transform: translateY(2px) scale(0.9);
             }
 
             .fc-btn {
@@ -1604,14 +1685,27 @@ function injectSidebarUI() {
                 color: #5c4a4d;
                 background-size: cover;
                 background-position: center;
-                box-shadow: 0 4px 10px rgba(180, 140, 150, 0.25);
+                outline: none;
+                user-select: none;
+                box-shadow: 0 4px 0 #b38e97, 0 6px 12px rgba(180, 140, 150, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
             }
+            .fc-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 0 #b38e97, 0 9px 16px rgba(180, 140, 150, 0.38), inset 0 1px 1px white;
+            }
+            .fc-btn:active {
+                transform: translateY(3px) scale(0.95);
+                box-shadow: 0 1px 0 #b38e97, 0 2px 4px rgba(180, 140, 150, 0.2), inset 0 2px 3px rgba(130, 90, 100, 0.3);
+            }
+
             .fc-btn-learn {
                 background-image: linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), url('https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/332fb8d639e5fc8f7fffc7bb2e1993fa67727681/f1.jpeg');
             }
             .fc-btn-gotit {
                 background-image: linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), url('https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/332fb8d639e5fc8f7fffc7bb2e1993fa67727681/f2.jpg');
             }
+
             #fc-clear-deck-btn {
                 background: linear-gradient(180deg, #ffffff 0%, #fae6ed 100%);
                 color: #b89c9e;
@@ -1624,18 +1718,44 @@ function injectSidebarUI() {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 3px 0 #d9a8b6, 0 4px 8px rgba(224, 139, 155, 0.18), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.2s ease;
+            }
+            #fc-clear-deck-btn:hover {
+                color: #ba6273;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 0 #d9a8b6, 0 7px 12px rgba(224, 139, 155, 0.28), inset 0 1px 1px white;
+            }
+            #fc-clear-deck-btn:active {
+                transform: translateY(2px) scale(0.94);
+                box-shadow: 0 1px 0 #d9a8b6, 0 2px 4px rgba(224, 139, 155, 0.18), inset 0 1.5px 2px rgba(180, 110, 125, 0.25);
             }
 
             #fc-restart-btn {
                 background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
                 color: white;
-                border: 1px solid rgba(255, 255, 255, 0.65);
+                border: 1px solid rgba(255, 255, 255, 0.7);
                 border-radius: 12px;
                 padding: 8px 14px;
                 font-weight: 800;
                 font-size: 12.5px;
                 cursor: pointer;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 3.5px 0 #ba6273, 0 4px 8px rgba(224, 139, 155, 0.25), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
             }
+            #fc-restart-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5.5px 0 #ba6273, 0 7px 14px rgba(224, 139, 155, 0.35), inset 0 1px 1px white;
+            }
+            #fc-restart-btn:active {
+                transform: translateY(2.5px) scale(0.94);
+                box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(140, 50, 65, 0.35);
+            }
+
             #fc-exit-btn {
                 background: linear-gradient(180deg, #ffffff 0%, #faeef3 100%);
                 color: #7b6267;
@@ -1645,6 +1765,19 @@ function injectSidebarUI() {
                 font-weight: 700;
                 font-size: 12px;
                 cursor: pointer;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 3px 0 #e2becb, 0 4px 8px rgba(200, 150, 160, 0.18), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.2s ease;
+            }
+            #fc-exit-btn:hover {
+                color: #e08b9b;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 0 #e2becb, 0 6px 12px rgba(200, 150, 160, 0.28), inset 0 1px 1px white;
+            }
+            #fc-exit-btn:active {
+                transform: translateY(2px) scale(0.94);
+                box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(200, 150, 160, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
             }
 
             #fc-go-saved-btn {
@@ -1658,6 +1791,31 @@ function injectSidebarUI() {
                 font-weight: 800;
                 font-size: 13px;
                 cursor: pointer;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 4px 0 #d9a8b6, 0 6px 12px rgba(224, 139, 155, 0.25), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease;
+            }
+            #fc-go-saved-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 0 #d9a8b6, 0 8px 16px rgba(224, 139, 155, 0.35), inset 0 1px 1px white;
+            }
+            #fc-go-saved-btn:active {
+                transform: translateY(2.5px) scale(0.95);
+                box-shadow: 0 1px 0 #d9a8b6, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(180, 110, 125, 0.25);
+            }
+
+            #fc-exit-link {
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+                display: inline-block;
+                user-select: none;
+            }
+            #fc-exit-link:hover {
+                transform: translateY(-1.5px);
+                color: #e08b9b !important;
+            }
+            #fc-exit-link:active {
+                transform: translateY(1.5px) scale(0.92);
             }
 
             .connect-btn {
@@ -1669,6 +1827,18 @@ function injectSidebarUI() {
                 font-weight: 800;
                 font-size: 13.5px;
                 cursor: pointer;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 4px 0 #ba6273, 0 6px 14px rgba(224, 139, 155, 0.35), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease;
+            }
+            .connect-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 0 #ba6273, 0 9px 18px rgba(224, 139, 155, 0.45), inset 0 1px 1px white;
+            }
+            .connect-btn:active {
+                transform: translateY(3px) scale(0.95);
+                box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(140, 50, 65, 0.35);
             }
 
             #clear-sync-key-btn {
@@ -1680,6 +1850,19 @@ function injectSidebarUI() {
                 font-weight: 700;
                 font-size: 12.5px;
                 cursor: pointer;
+                outline: none;
+                user-select: none;
+                box-shadow: 0 3.5px 0 #e2becb, 0 4px 8px rgba(200, 150, 160, 0.18), inset 0 1px 1px white;
+                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.2s ease;
+            }
+            #clear-sync-key-btn:hover {
+                color: #e08b9b;
+                transform: translateY(-2px);
+                box-shadow: 0 5.5px 0 #e2becb, 0 7px 12px rgba(200, 150, 160, 0.28), inset 0 1px 1px white;
+            }
+            #clear-sync-key-btn:active {
+                transform: translateY(2.5px) scale(0.94);
+                box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(200, 150, 160, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
             }
 
             /* Scroll containers isolated strictly below header */
@@ -1717,6 +1900,11 @@ function injectSidebarUI() {
                 box-sizing: border-box;
                 outline: none;
                 margin-bottom: 12px;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .dict-search-box:focus {
+                border-color: #e08b9b;
+                box-shadow: 0 0 0 3px rgba(224, 139, 155, 0.18);
             }
 
             #mandarin-tools-menu {
@@ -1995,10 +2183,17 @@ function injectSidebarUI() {
 
     enforceKeyPresence();
 
+    // Prevent site shortcuts when typing in search bars
     if (vocabSearch && vocabSort && filterSelect && dictInput) {
         ['keydown', 'keyup', 'keypress'].forEach(evt => {
-            vocabSearch.addEventListener(evt, (e) => e.stopPropagation(), { capture: true });
-            dictInput.addEventListener(evt, (e) => e.stopPropagation(), { capture: true });
+            vocabSearch.addEventListener(evt, (e) => {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }, { capture: true });
+            dictInput.addEventListener(evt, (e) => {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }, { capture: true });
         });
         vocabSearch.addEventListener('input', () => renderSavedVocab(shadowRoot));
         vocabSort.addEventListener('change', () => renderSavedVocab(shadowRoot));
@@ -3025,7 +3220,7 @@ function renderCurrentFlashcard(shadowRoot) {
     });
 }
 
-// --- HARDENED MULTI-TIER SAFARI SPEECH SYNTHESIS ENGINE ---
+// --- UNIVERSAL CROSS-DEVICE SPEECH SYNTHESIS ENGINE ---
 window._activeTtsUtterance = null;
 window._activeTtsAudio = null;
 
@@ -3039,7 +3234,7 @@ function playTTS(text) {
     if (!text) return;
     const cleanText = text.trim();
 
-    // 1. Primary: Native WebKit SpeechSynthesis (uses downloaded macOS Chinese voices)
+    // 1. Primary: Native SpeechSynthesis (instantaneous when local voices exist)
     if ('speechSynthesis' in window && hasLocalMandarinVoice()) {
         try {
             window.speechSynthesis.cancel();
@@ -3060,11 +3255,11 @@ function playTTS(text) {
 
             utterance.onend = () => { window._activeTtsUtterance = null; };
             utterance.onerror = (e) => {
-                console.warn("Safari TTS playback error:", e);
+                console.warn("Native TTS playback error, trying universal fallback:", e);
                 window._activeTtsUtterance = null;
+                playTTSAudioFallback(cleanText);
             };
 
-            // Retain on window object to prevent Safari garbage collector from killing it mid-speech
             window._activeTtsUtterance = utterance;
 
             if (window.speechSynthesis.paused) {
@@ -3074,24 +3269,62 @@ function playTTS(text) {
             window.speechSynthesis.speak(utterance);
             return;
         } catch (e) {
-            console.warn("Native TTS error, using fallback audio:", e);
+            console.warn("Native TTS error, using universal audio stream fallback:", e);
         }
     }
 
-    // 2. Seamless Fallback: Native Audio Stream for Macs without built-in Chinese voices
+    // 2. Seamless Universal Fallback: Extension-privileged blob playback for any device
+    playTTSAudioFallback(cleanText);
+}
+
+function playTTSAudioFallback(cleanText) {
     try {
         if (window._activeTtsAudio) {
             window._activeTtsAudio.pause();
+            if (window._activeTtsAudio.src && window._activeTtsAudio.src.startsWith('blob:')) {
+                URL.revokeObjectURL(window._activeTtsAudio.src);
+            }
             window._activeTtsAudio = null;
         }
+
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=zh-CN&client=tw-ob`;
-        const audio = new Audio(audioUrl);
-        window._activeTtsAudio = audio;
-        audio.play().catch(err => {
-            console.warn("Fallback audio playback failed:", err);
+
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: audioUrl,
+            responseType: 'blob',
+            timeout: 5000,
+            onload: function(res) {
+                if (res.status === 200 && res.response) {
+                    try {
+                        const blobUrl = URL.createObjectURL(res.response);
+                        const audio = new Audio(blobUrl);
+                        window._activeTtsAudio = audio;
+
+                        audio.onended = () => {
+                            URL.revokeObjectURL(blobUrl);
+                            window._activeTtsAudio = null;
+                        };
+
+                        audio.play().catch(err => {
+                            console.warn("TTS Audio playback error:", err);
+                        });
+                    } catch (err) {
+                        console.warn("Blob audio creation failed:", err);
+                    }
+                } else {
+                    console.warn("Universal TTS fetch returned status:", res.status);
+                }
+            },
+            onerror: function(err) {
+                console.warn("Universal TTS network request failed:", err);
+            },
+            ontimeout: function() {
+                console.warn("Universal TTS request timed out.");
+            }
         });
     } catch (err) {
-        console.warn("TTS completely failed:", err);
+        console.warn("Universal TTS fallback error:", err);
     }
 }
 
@@ -3167,13 +3400,27 @@ function parseTextWithVocab(text) {
 
 let lastSubtitle = "";
 let observerInterval = null;
+let lastObservedUrl = window.location.href;
 
 function startObservingVideo() {
     if (observerInterval) clearInterval(observerInterval);
 
     observerInterval = setInterval(() => {
+        // Track client-side SPA navigations on YouTube/Netflix
+        if (window.location.href !== lastObservedUrl) {
+            lastObservedUrl = window.location.href;
+            lastSubtitle = "";
+            const sidebarHost = document.getElementById('mandarin-sidebar-host');
+            if (sidebarHost && sidebarHost.shadowRoot) {
+                const feed = sidebarHost.shadowRoot.getElementById('transcript-feed');
+                if (feed) {
+                    feed.innerHTML = `<div id="waiting-msg" style="text-align: center; color: #a38c90; font-size: 14px; font-style: italic; margin-top: 20px; text-shadow: 1px 1px 2px white;">Well... I'm just waiting for the next line 🤓👆</div>`;
+                }
+            }
+        }
+
         const videoEl = document.querySelector('video');
-        if (videoEl && !videoEl.dataset.seekListenerAdded) {
+        if (videoEl && (!videoEl.dataset.seekListenerAdded || !videoEl.isConnected)) {
             videoEl.dataset.seekListenerAdded = 'true';
             videoEl.addEventListener('seeking', () => {
                 lastSubtitle = "";
