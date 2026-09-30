@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.5.6
+// @version      6.5.7
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, universal cross-device TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.5.6';
+const SCRIPT_VERSION = 'v6.5.7';
 const GITHUB_RAW_SCRIPT_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
@@ -122,8 +122,8 @@ function setSyncKey(key) {
         localStorage.setItem(SYNC_KEY_STORAGE, key.trim());
     } else {
         localStorage.removeItem(SYNC_KEY_STORAGE);
-        localStorage.removeItem(STORAGE_KEY);          // Clear 'eggy_saved_vocab'
-        localStorage.removeItem(ASKED_STORAGE_KEY);    // Clear 'eggy_asked_words'
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ASKED_STORAGE_KEY);
         localStorage.removeItem('eggy_active_email');
         
         flashcardQueue = [];
@@ -131,7 +131,6 @@ function setSyncKey(key) {
     }
 }
 
-// 1. 推送單一單字至雲端 (Preserve savedAt and updatedAt)
 function syncVocabToCloud(vocab) {
     const uid = getSyncKey();
     if (!uid) return;
@@ -169,7 +168,6 @@ function syncVocabToCloud(vocab) {
     });
 }
 
-// 2. 從雲端刪除單字
 function deleteVocabFromCloud(hanzi) {
     const uid = getSyncKey();
     if (!uid) return;
@@ -185,7 +183,6 @@ function deleteVocabFromCloud(hanzi) {
     });
 }
 
-// 3. 從雲端拉取全部單字覆蓋本地 (Preserve savedAt for accurate sorting)
 function pullVocabFromCloud(onComplete) {
     const uid = getSyncKey();
     if (!uid) {
@@ -226,7 +223,7 @@ function pullVocabFromCloud(onComplete) {
                         }).filter(v => v.hanzi);
 
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudVocabList));
-                        console.log(`☁ Successfully pulled & merged ${cloudVocabList.length} words from WebApp!`);
+                        console.log(`☁️ Successfully pulled & merged ${cloudVocabList.length} words from WebApp!`);
                     }
                 }
             } catch (e) {
@@ -290,7 +287,6 @@ function getSavedVocab() {
     }
 }
 
-// Precise timestamp preservation on storage save
 function saveVocabToStorage(vocab) {
     try {
         let saved = getSavedVocab();
@@ -535,6 +531,7 @@ toggleBtn.style.cssText = `
     user-select: none;
     touch-action: none;
     outline: none;
+    transition: right 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.2s ease;
 `;
 
 const toggleBtnStyle = document.createElement('style');
@@ -659,8 +656,8 @@ popupModal.id = 'mandarin-vocab-popup';
 popupModal.style.cssText = `
     position: fixed;
     display: none;
-    z-index: 2147483647;
-    pointer-events: auto;
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
     border: 2px solid #f5cde2;
@@ -914,12 +911,12 @@ popupStyles.innerHTML = `
         box-shadow: 0 0.5px 0 #e2becb, 0 1px 2px rgba(200, 150, 160, 0.2), inset 0 1.5px 2px rgba(180, 120, 130, 0.2);
     }
 
-    /* --- MANDATORY VERSION UPDATE MODAL STYLES (EXPANDED FOR 3D BEVELS) --- */
+    /* --- MANDATORY VERSION UPDATE MODAL STYLES --- */
     #mandarin-update-modal {
         position: fixed;
         display: none;
-        z-index: 2147483647;
-        pointer-events: auto;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -1027,8 +1024,8 @@ reportModal.id = 'mandarin-report-modal';
 reportModal.style.cssText = `
     position: fixed;
     display: none;
-    z-index: 2147483647;
-    pointer-events: auto;
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1124,13 +1121,30 @@ function handleToggle() {
             0 12px 16px rgba(200, 150, 160, 0.4)
         `;
 
-        // Shift button 360px from the right so it stays visible beside the sidebar
-        toggleBtn.style.right = '360px';
-        toggleBtn.style.left = 'auto';
+        // Check if egg sits inside the rightmost 365px area
+        const rect = toggleBtn.getBoundingClientRect();
+        const distFromRight = window.innerWidth - rect.right;
+        if (distFromRight < 365) {
+            toggleBtn.style.right = '365px';
+            toggleBtn.style.left = 'auto';
+        }
 
         injectSidebarUI();
         startObservingVideo();
-        // ... rest of cloud pull logic
+
+        if (getSyncKey()) {
+            pullVocabFromCloud(() => {
+                fetchBeanReplies(() => {
+                    const sidebarHost = document.getElementById('mandarin-sidebar-host');
+                    if (sidebarHost && sidebarHost.shadowRoot) {
+                        const vocabArea = sidebarHost.shadowRoot.getElementById('saved-vocab-area');
+                        if (vocabArea && vocabArea.style.display === 'flex') {
+                            renderSavedVocab(sidebarHost.shadowRoot);
+                        }
+                    }
+                });
+            });
+        }
     } else {
         toggleBtn.style.setProperty('--egg-shadow-color', '#b0d4e3');
         toggleBtn.style.background = 'linear-gradient(145deg, #eaf8f8, #cde4f6)';
@@ -1142,10 +1156,7 @@ function handleToggle() {
             0 12px 16px rgba(150, 180, 200, 0.4)
         `;
 
-        // Return button to default right offset
-        toggleBtn.style.right = '20px';
-        toggleBtn.style.left = 'auto';
-
+        // Egg stays right where it was left when sidebar closes
         removeSidebarUI();
     }
 }
@@ -1309,7 +1320,7 @@ function injectSidebarUI() {
         position: fixed;
         right: 0;
         top: 0;
-        z-index: 2147483647 !important;
+        z-index: 2147483640 !important;
         pointer-events: auto !important;
         background: linear-gradient(rgba(252, 248, 245, 0.85), rgba(252, 248, 245, 0.88)), url('${imageUrl}');
         background-size: cover;
@@ -3647,7 +3658,6 @@ function startObservingVideo() {
     if (observerInterval) clearInterval(observerInterval);
 
     observerInterval = setInterval(() => {
-        // Track client-side SPA navigations on YouTube/Netflix
         if (window.location.href !== lastObservedUrl) {
             lastObservedUrl = window.location.href;
             lastSubtitle = "";
