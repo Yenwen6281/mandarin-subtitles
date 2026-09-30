@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.5.1
+// @version      6.5.2
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, universal cross-device TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,8 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.5.1';
+const SCRIPT_VERSION = 'v6.5.2';
+const GITHUB_RAW_SCRIPT_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
 const SYNC_KEY_STORAGE = 'eggy_firebase_sync_key';
@@ -777,38 +778,23 @@ popupStyles.innerHTML = `
     }
     #mandarin-vocab-popup .deck-toggle-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 
-            0 5.5px 0 #d9a8b6,
-            0 6px 12px rgba(224, 139, 155, 0.3),
-            inset 0 1px 1px #ffffff;
+        box-shadow: 0 5.5px 0 #d9a8b6, 0 6px 12px rgba(224, 139, 155, 0.3), inset 0 1px 1px #ffffff;
     }
     #mandarin-vocab-popup .deck-toggle-btn:active {
         transform: translateY(2.5px) scale(0.94);
-        box-shadow: 
-            0 1px 0 #d9a8b6,
-            0 2px 4px rgba(224, 139, 155, 0.2),
-            inset 0 2px 3px rgba(180, 110, 125, 0.25);
+        box-shadow: 0 1px 0 #d9a8b6, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(180, 110, 125, 0.25);
     }
     #mandarin-vocab-popup .deck-toggle-btn.in-deck {
         background: linear-gradient(180deg, #ffc7d5 0%, #e08b9b 100%);
         color: #ffffff;
         border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 
-            0 3.5px 0 #ba6273,
-            0 4px 8px rgba(224, 139, 155, 0.35),
-            inset 0 1px 1px rgba(255, 255, 255, 0.6);
+        box-shadow: 0 3.5px 0 #ba6273, 0 4px 8px rgba(224, 139, 155, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
     }
     #mandarin-vocab-popup .deck-toggle-btn.in-deck:hover {
-        box-shadow: 
-            0 5.5px 0 #ba6273,
-            0 6px 12px rgba(224, 139, 155, 0.45),
-            inset 0 1px 1px rgba(255, 255, 255, 0.7);
+        box-shadow: 0 5.5px 0 #ba6273, 0 6px 12px rgba(224, 139, 155, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.7);
     }
     #mandarin-vocab-popup .deck-toggle-btn.in-deck:active {
-        box-shadow: 
-            0 1px 0 #ba6273,
-            0 2px 4px rgba(160, 65, 80, 0.3),
-            inset 0 2px 3px rgba(140, 50, 65, 0.35);
+        box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(160, 65, 80, 0.3), inset 0 2px 3px rgba(140, 50, 65, 0.35);
     }
 
     #mandarin-vocab-popup .popup-icon-btn {
@@ -923,6 +909,126 @@ popupStyles.innerHTML = `
         transform: translateY(2px) scale(0.92);
         box-shadow: 0 0.5px 0 #e2becb, 0 1px 2px rgba(200, 150, 160, 0.2), inset 0 1.5px 2px rgba(180, 120, 130, 0.2);
     }
+
+    /* --- MANDATORY VERSION UPDATE MODAL STYLES --- */
+    #mandarin-update-modal {
+        position: fixed;
+        display: none;
+        z-index: 10000005;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(14px);
+        border: 2px solid #f5cde2;
+        padding: 22px 20px 20px;
+        border-radius: 20px;
+        box-shadow: 0 14px 38px rgba(200, 150, 160, 0.4);
+        font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+        width: 335px;
+        max-width: calc(100vw - 32px);
+        color: #5c4a4d;
+        box-sizing: border-box;
+        overflow: hidden;
+        animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #update-slider-track {
+        display: flex;
+        width: 200%;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .update-slide {
+        width: 50%;
+        box-sizing: border-box;
+        padding: 0 4px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .update-tactile-btn {
+        width: 100%;
+        background: linear-gradient(180deg, #f09cb0 0%, #e08b9b 100%);
+        color: white;
+        border: 1.5px solid rgba(255, 255, 255, 0.8);
+        border-radius: 14px;
+        padding: 10px 14px;
+        font-weight: 800;
+        font-size: 13.5px;
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 4px 0 #ba6273, 0 6px 14px rgba(224, 139, 155, 0.35), inset 0 1px 1px white;
+        transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.2s ease;
+    }
+    .update-tactile-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #ba6273, 0 9px 18px rgba(224, 139, 155, 0.45), inset 0 1px 1px white;
+    }
+    .update-tactile-btn:active {
+        transform: translateY(3px) scale(0.95);
+        box-shadow: 0 1px 0 #ba6273, 0 2px 4px rgba(224, 139, 155, 0.2), inset 0 2px 3px rgba(140, 50, 65, 0.35);
+    }
+
+    .update-back-btn {
+        background: linear-gradient(180deg, #ffffff 0%, #faeef3 100%);
+        color: #7b6267;
+        border: 1px solid #f0c5d6;
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 3px 0 #e2becb, 0 4px 8px rgba(200, 150, 160, 0.18), inset 0 1px 1px white;
+        transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, color 0.2s ease;
+    }
+    .update-back-btn:hover {
+        color: #e08b9b;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 0 #e2becb, 0 7px 12px rgba(200, 150, 160, 0.28), inset 0 1px 1px white;
+    }
+    .update-back-btn:active {
+        transform: translateY(2px) scale(0.94);
+        box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(200, 150, 160, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
+    }
+
+    .update-step-card {
+        background: rgba(255, 245, 248, 0.7);
+        border: 1px solid #f5cde2;
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-bottom: 7px;
+        font-size: 12px;
+        color: #6a5356;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        line-height: 1.35;
+    }
+    .update-step-num {
+        background: #e08b9b;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10.5px;
+        font-weight: 800;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
 `;
 document.head.appendChild(popupStyles);
 
@@ -947,6 +1053,11 @@ reportModal.style.cssText = `
     box-sizing: border-box;
 `;
 document.body.appendChild(reportModal);
+
+// Create Mandatory Version Update Modal
+const updateModal = document.createElement('div');
+updateModal.id = 'mandarin-update-modal';
+document.body.appendChild(updateModal);
 
 let isSidebarActive = false;
 let isDragging = false;
@@ -1053,6 +1164,154 @@ function handleToggle() {
 
 toggleBtn.addEventListener('mousedown', onDragStart);
 toggleBtn.addEventListener('touchstart', onDragStart, { passive: false });
+
+// --- GITHUB REMOTE VERSION CHECKER & MANDATORY SLIDER GATE ---
+function parseSemanticVersion(vStr) {
+    if (!vStr) return [0, 0, 0];
+    const clean = vStr.replace(/[^0-9.]/g, '');
+    return clean.split('.').map(num => parseInt(num, 10) || 0);
+}
+
+function isRemoteVersionNewer(localVer, remoteVer) {
+    const l = parseSemanticVersion(localVer);
+    const r = parseSemanticVersion(remoteVer);
+    for (let i = 0; i < Math.max(l.length, r.length); i++) {
+        const localPart = l[i] || 0;
+        const remotePart = r[i] || 0;
+        if (remotePart > localPart) return true;
+        if (remotePart < localPart) return false;
+    }
+    return false;
+}
+
+function showMandatoryUpdateModal(remoteVersion) {
+    const videoEl = document.querySelector('video');
+    if (videoEl && !videoEl.paused) {
+        videoEl.pause();
+    }
+
+    updateModal.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px dashed #f5cde2; padding-bottom: 8px;">
+            <div style="font-weight: 800; font-size: 16px; color: #e08b9b; display: flex; align-items: center; gap: 6px;">
+                <span>New Update Available!</span> 🌷
+            </div>
+            <span style="font-size: 11px; background: #eef7fc; color: #406277; padding: 3px 8px; border-radius: 10px; font-weight: bold; border: 1px solid #c9e4f5;">Action Required</span>
+        </div>
+
+        <div style="overflow: hidden; width: 100%;">
+            <div id="update-slider-track">
+                <!-- SLIDE 1: ALERT & NOTIFICATION -->
+                <div class="update-slide">
+                    <div style="text-align: center; margin: 6px 0 14px;">
+                        <img src="${WELCOME_C3_IMG_URL}" alt="Update Available" style="width: 58px; height: auto; margin-bottom: 6px; filter: drop-shadow(0 3px 6px rgba(200, 150, 160, 0.25)); pointer-events: none;">
+                        <div style="font-size: 13.5px; font-weight: 700; color: #5c4a4d; margin-bottom: 6px;">
+                            A new published version is on GitHub!
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 11px; background: rgba(200, 150, 160, 0.15); color: #8ba6b6; padding: 2px 8px; border-radius: 8px; font-weight: bold;">
+                                Current: ${SCRIPT_VERSION}
+                            </span>
+                            <span style="font-size: 11px; background: rgba(224, 139, 155, 0.2); color: #ba6273; padding: 2px 8px; border-radius: 8px; font-weight: 800;">
+                                Latest: v${remoteVersion}
+                            </span>
+                        </div>
+                        <div style="font-size: 12.5px; color: #7b6267; line-height: 1.45; padding: 0 4px;">
+                            Please update your userscript in extension settings before proceeding to enjoy the latest fixes and features! 🌸
+                        </div>
+                    </div>
+
+                    <button id="update-slide-next-btn" class="update-tactile-btn">
+                        <span>How to Update</span> ➔
+                    </button>
+                </div>
+
+                <!-- SLIDE 2: STEP-BY-STEP INSTRUCTION -->
+                <div class="update-slide">
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 13px; font-weight: 800; color: #e08b9b; margin-bottom: 8px;">
+                            3 Steps to Update:
+                        </div>
+                        <div class="update-step-card">
+                            <div class="update-step-num">1</div>
+                            <div>Open your <b>Userscripts</b> extension page from the Safari/browser toolbar.</div>
+                        </div>
+                        <div class="update-step-card">
+                            <div class="update-step-num">2</div>
+                            <div>Click on <b>lltfliss</b> and hit <b>Refresh / Fetch</b> to pull the latest code from GitHub.</div>
+                        </div>
+                        <div class="update-step-card">
+                            <div class="update-step-num">3</div>
+                            <div>Hit <b>Save</b>, then simply reload this tab! ✨</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button id="update-slide-back-btn" class="update-back-btn">
+                            ⬅ Back
+                        </button>
+                        <button id="update-reload-check-btn" class="update-tactile-btn" style="flex: 1; padding: 8px 12px; font-size: 12.5px;">
+                            Reload Tab 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    updateModal.style.display = 'block';
+
+    const track = document.getElementById('update-slider-track');
+    const nextBtn = document.getElementById('update-slide-next-btn');
+    const backBtn = document.getElementById('update-slide-back-btn');
+    const reloadBtn = document.getElementById('update-reload-check-btn');
+
+    if (nextBtn && track) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            track.style.transform = 'translateX(-50%)';
+        });
+    }
+
+    if (backBtn && track) {
+        backBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            track.style.transform = 'translateX(0%)';
+        });
+    }
+
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.location.reload();
+        });
+    }
+}
+
+function checkForRemoteUserscriptUpdates() {
+    GM_xmlhttpRequest({
+        method: 'GET',
+        url: `${GITHUB_RAW_SCRIPT_URL}?t=${Date.now()}`,
+        timeout: 6000,
+        onload: function(res) {
+            if (res.status === 200 && res.responseText) {
+                const match = res.responseText.match(/@version\s+([0-9.]+)/i);
+                if (match && match[1]) {
+                    const remoteVersion = match[1].trim();
+                    if (isRemoteVersionNewer(SCRIPT_VERSION, remoteVersion)) {
+                        console.log(`🌸 New userscript version detected on GitHub: v${remoteVersion} (Installed: ${SCRIPT_VERSION})`);
+                        showMandatoryUpdateModal(remoteVersion);
+                    }
+                }
+            }
+        },
+        onerror: function(err) {
+            console.warn("Could not check for userscript updates:", err);
+        }
+    });
+}
+
+// Check remote version on mount
+checkForRemoteUserscriptUpdates();
 
 // --- 4. SIDEBAR INJECTION & SETUP ---
 function injectSidebarUI() {
