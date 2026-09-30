@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.5.3
+// @version      6.5.5
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, universal cross-device TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.5.3';
+const SCRIPT_VERSION = 'v6.5.5';
 const GITHUB_RAW_SCRIPT_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
@@ -37,7 +37,7 @@ const EMPTY_DECK_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandari
 const COMPLETE_DECK_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/45c35941f24aabe020891bdc3d9df53ec0aff55f/c2.png';
 const WELCOME_C3_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/cb719ce98044fadad27888747a195a96c761b05f/c3.png';
 const B1_BG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/0e228accc04a786e15a9f8aa271166eee7a5f2b6/b1.png';
-const UPDATE_TUTORIAL_GIF_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/bf0bde6734f17f2bc896d8e3cd31a189a2180a4c/g1.gif';
+const UPDATE_TUTORIAL_GIF_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/e71e25156a46bafb236db7282ceb0d49961ec2ef/g1.gif';
 
 const FLASHCARD_BG_IMAGES_HANZI = [
     'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/98ab0023e1c510c6ee108fe5098afbfe1adbc8f6/d1.png',
@@ -225,7 +225,7 @@ function pullVocabFromCloud(onComplete) {
                         }).filter(v => v.hanzi);
 
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudVocabList));
-                        console.log(`☁️️ Successfully pulled & merged ${cloudVocabList.length} words from WebApp!`);
+                        console.log(`☁ Successfully pulled & merged ${cloudVocabList.length} words from WebApp!`);
                     }
                 }
             } catch (e) {
@@ -911,7 +911,7 @@ popupStyles.innerHTML = `
         box-shadow: 0 0.5px 0 #e2becb, 0 1px 2px rgba(200, 150, 160, 0.2), inset 0 1.5px 2px rgba(180, 120, 130, 0.2);
     }
 
-    /* --- MANDATORY VERSION UPDATE MODAL STYLES --- */
+    /* --- MANDATORY VERSION UPDATE MODAL STYLES (EXPANDED FOR 3D BEVELS) --- */
     #mandarin-update-modal {
         position: fixed;
         display: none;
@@ -922,15 +922,14 @@ popupStyles.innerHTML = `
         background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(14px);
         border: 2px solid #f5cde2;
-        padding: 18px 18px 22px;
+        padding: 18px 18px 28px;
         border-radius: 20px;
         box-shadow: 0 14px 38px rgba(200, 150, 160, 0.4);
         font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
-        width: 325px;
+        width: 335px;
         max-width: calc(100vw - 32px);
         color: #5c4a4d;
         box-sizing: border-box;
-        overflow: hidden;
         animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -943,7 +942,7 @@ popupStyles.innerHTML = `
     .update-slide {
         width: 50%;
         box-sizing: border-box;
-        padding: 0 4px;
+        padding: 0 6px;
         display: flex;
         flex-direction: column;
     }
@@ -981,7 +980,7 @@ popupStyles.innerHTML = `
         color: #7b6267;
         border: 1px solid #f0c5d6;
         border-radius: 12px;
-        padding: 9px 15px;
+        padding: 9px 16px;
         font-weight: 700;
         font-size: 12.5px;
         cursor: pointer;
@@ -1004,27 +1003,17 @@ popupStyles.innerHTML = `
     }
 
     .update-steps-simple {
-        margin: 8px 0 14px 0;
+        margin: 6px 0 16px 0;
         padding: 0;
         list-style: none;
         display: flex;
         flex-direction: column;
-        gap: 4.5px;
+        gap: 5px;
     }
     .update-steps-simple li {
         font-size: 12px;
         color: #6a5356;
         line-height: 1.4;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .update-step-dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: #e08b9b;
-        flex-shrink: 0;
     }
 `;
 document.head.appendChild(popupStyles);
@@ -1188,7 +1177,7 @@ function showMandatoryUpdateModal(remoteVersion) {
     }
 
     updateModal.innerHTML = `
-        <div style="overflow: hidden; width: 100%;">
+        <div style="overflow: hidden; width: 100%; padding-bottom: 4px;">
             <div id="update-slider-track">
                 <!-- SLIDE 1: ALERT & NOTIFICATION -->
                 <div class="update-slide">
@@ -1224,18 +1213,19 @@ function showMandatoryUpdateModal(remoteVersion) {
 
                 <!-- SLIDE 2: MINIMAL INSTRUCTION WITH LOOPING GIF -->
                 <div class="update-slide">
-                    <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #f5cde2; box-shadow: 0 4px 12px rgba(200, 150, 160, 0.2); margin-bottom: 8px; background: #000;">
+                    <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #f5cde2; box-shadow: 0 4px 12px rgba(200, 150, 160, 0.2); margin-bottom: 10px; background: #000;">
                         <img src="${UPDATE_TUTORIAL_GIF_URL}" alt="How to Update GIF" style="width: 100%; height: auto; display: block; border-radius: 11px;">
                     </div>
 
                     <ul class="update-steps-simple">
-                        <li><span class="update-step-dot"></span> <b>1.</b> Open Userscripts extension page</li>
-                        <li><span class="update-step-dot"></span> <b>2.</b> Select <b>lltfliss</b></li>
-                        <li><span class="update-step-dot"></span> <b>3.</b> Hit Refresh & Save</li>
-                        <li><span class="update-step-dot"></span> <b>4.</b> Reload this tab</li>
+                        <li><b>1.</b> Open Userscripts extension page</li>
+                        <li><b>2.</b> Select <b>lltfliss</b></li>
+                        <li><b>3.</b> Hit refresh (Top right)</li>
+                        <li><b>4.</b> Press save (Bottom right)</li>
+                        <li><b>5.</b> Reload this tab</li>
                     </ul>
 
-                    <div style="display: flex; gap: 8px; padding-bottom: 2px;">
+                    <div style="display: flex; gap: 10px; padding: 4px 0 6px 0;">
                         <button id="update-slide-back-btn" class="update-back-btn">
                             ⬅ Back
                         </button>
