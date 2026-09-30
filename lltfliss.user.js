@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         lltfliss
 // @namespace    https://github.com/Yenwen6281/mandarin-subtitles
-// @version      6.5.5
+// @version      6.5.6
 // @updateURL    https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js
 // @description  Dual-subtitle sidebar, mandatory cloud key gatekeeper, interactive popups, universal cross-device TTS, persistent vocabulary, sticky notes, Bean's notes, custom Woodstock jump, accurate timestamp-based sort/filter for saved vocab, interactive flashcards, tactile subtitle tokens, pure reference dictionary with translation-first lookup, and two-way real-time Firebase cloud sync with WebApp.
@@ -21,7 +21,7 @@
     'use strict';
 
 // --- 0. CONSTANTS & SAFE STORAGE HELPER ---
-const SCRIPT_VERSION = 'v6.5.5';
+const SCRIPT_VERSION = 'v6.5.6';
 const GITHUB_RAW_SCRIPT_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/main/lltfliss.user.js';
 const STORAGE_KEY = 'eggy_saved_vocab';
 const ASKED_STORAGE_KEY = 'eggy_asked_words';
