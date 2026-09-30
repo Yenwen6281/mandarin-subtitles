@@ -36,6 +36,7 @@ const MENU_ICON_A5_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-
 const EMPTY_DECK_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/854cab3f7b910a95391b99dfa7d881b22543524f/c1.png';
 const COMPLETE_DECK_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/45c35941f24aabe020891bdc3d9df53ec0aff55f/c2.png';
 const WELCOME_C3_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/cb719ce98044fadad27888747a195a96c761b05f/c3.png';
+const UPDATE_C4_IMG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/78432adf794af9101b25ffc95c7ff326f919b13a/c4.png';
 const B1_BG_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/0e228accc04a786e15a9f8aa271166eee7a5f2b6/b1.png';
 const UPDATE_TUTORIAL_GIF_URL = 'https://raw.githubusercontent.com/Yenwen6281/mandarin-subtitles/e71e25156a46bafb236db7282ceb0d49961ec2ef/g1.gif';
 
@@ -510,7 +511,8 @@ toggleBtn.style.cssText = `
     position: fixed;
     bottom: 120px;
     right: 20px;
-    z-index: 999999;
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
     background: linear-gradient(145deg, #eaf8f8, #cde4f6);
     color: white;
     border: none;
@@ -657,7 +659,8 @@ popupModal.id = 'mandarin-vocab-popup';
 popupModal.style.cssText = `
     position: fixed;
     display: none;
-    z-index: 9999999;
+    z-index: 2147483647;
+    pointer-events: auto;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
     border: 2px solid #f5cde2;
@@ -915,7 +918,8 @@ popupStyles.innerHTML = `
     #mandarin-update-modal {
         position: fixed;
         display: none;
-        z-index: 10000005;
+        z-index: 2147483647;
+        pointer-events: auto;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -999,7 +1003,7 @@ popupStyles.innerHTML = `
     }
     .update-back-btn:active {
         transform: translateY(2px) scale(0.94);
-        box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(200, 150, 160, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
+        box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(180, 120, 130, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
     }
 
     .update-steps-simple {
@@ -1023,7 +1027,8 @@ reportModal.id = 'mandarin-report-modal';
 reportModal.style.cssText = `
     position: fixed;
     display: none;
-    z-index: 10000000;
+    z-index: 2147483647;
+    pointer-events: auto;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1118,22 +1123,14 @@ function handleToggle() {
             0 6px 0 #e8b4c8,
             0 12px 16px rgba(200, 150, 160, 0.4)
         `;
+
+        // Shift button 360px from the right so it stays visible beside the sidebar
+        toggleBtn.style.right = '360px';
+        toggleBtn.style.left = 'auto';
+
         injectSidebarUI();
         startObservingVideo();
-
-        if (getSyncKey()) {
-            pullVocabFromCloud(() => {
-                fetchBeanReplies(() => {
-                    const sidebarHost = document.getElementById('mandarin-sidebar-host');
-                    if (sidebarHost && sidebarHost.shadowRoot) {
-                        const vocabArea = sidebarHost.shadowRoot.getElementById('saved-vocab-area');
-                        if (vocabArea && vocabArea.style.display === 'flex') {
-                            renderSavedVocab(sidebarHost.shadowRoot);
-                        }
-                    }
-                });
-            });
-        }
+        // ... rest of cloud pull logic
     } else {
         toggleBtn.style.setProperty('--egg-shadow-color', '#b0d4e3');
         toggleBtn.style.background = 'linear-gradient(145deg, #eaf8f8, #cde4f6)';
@@ -1144,6 +1141,11 @@ function handleToggle() {
             0 6px 0 #b0d4e3,
             0 12px 16px rgba(150, 180, 200, 0.4)
         `;
+
+        // Return button to default right offset
+        toggleBtn.style.right = '20px';
+        toggleBtn.style.left = 'auto';
+
         removeSidebarUI();
     }
 }
@@ -1181,17 +1183,16 @@ function showMandatoryUpdateModal(remoteVersion) {
             <div id="update-slider-track">
                 <!-- SLIDE 1: ALERT & NOTIFICATION -->
                 <div class="update-slide">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px dashed #f5cde2; padding-bottom: 8px;">
-                        <div style="font-weight: 800; font-size: 16px; color: #e08b9b; display: flex; align-items: center; gap: 6px;">
-                            <span>New Update Available!</span> 🌷
+                    <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 12px; border-bottom: 1.5px dashed #f5cde2; padding-bottom: 8px;">
+                        <div style="font-weight: 800; font-size: 16px; color: #e08b9b;">
+                            New Update Available!
                         </div>
-                        <span style="font-size: 11px; background: #eef7fc; color: #406277; padding: 3px 8px; border-radius: 10px; font-weight: bold; border: 1px solid #c9e4f5;">Action Required</span>
                     </div>
 
                     <div style="text-align: center; margin: 4px 0 14px;">
-                        <img src="${WELCOME_C3_IMG_URL}" alt="Update Available" style="width: 58px; height: auto; margin-bottom: 6px; filter: drop-shadow(0 3px 6px rgba(200, 150, 160, 0.25)); pointer-events: none;">
+                        <img src="${UPDATE_C4_IMG_URL}" alt="Update Available" style="width: 62px; height: auto; margin-bottom: 8px; filter: drop-shadow(0 3px 6px rgba(200, 150, 160, 0.25)); pointer-events: none;">
                         <div style="font-size: 13.5px; font-weight: 700; color: #5c4a4d; margin-bottom: 6px;">
-                            A new published version is on GitHub!
+                            A new published version is available!
                         </div>
                         <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 8px;">
                             <span style="font-size: 11px; background: rgba(200, 150, 160, 0.15); color: #8ba6b6; padding: 2px 8px; border-radius: 8px; font-weight: bold;">
@@ -1202,7 +1203,7 @@ function showMandatoryUpdateModal(remoteVersion) {
                             </span>
                         </div>
                         <div style="font-size: 12.5px; color: #7b6267; line-height: 1.45; padding: 0 4px;">
-                            Please update your userscript in extension settings before proceeding to enjoy the latest fixes and features! 🌸
+                            Please update your userscript in extension settings before proceeding to enjoy the latest fixes and features!
                         </div>
                     </div>
 
@@ -1220,9 +1221,8 @@ function showMandatoryUpdateModal(remoteVersion) {
                     <ul class="update-steps-simple">
                         <li><b>1.</b> Open Userscripts extension page</li>
                         <li><b>2.</b> Select <b>lltfliss</b></li>
-                        <li><b>3.</b> Hit refresh (Top right)</li>
-                        <li><b>4.</b> Press save (Bottom right)</li>
-                        <li><b>5.</b> Reload this tab</li>
+                        <li><b>3.</b> Hit refresh (Top right) ➔ Press save (Bottom right)</li>
+                        <li><b>4.</b> Reload this tab</li>
                     </ul>
 
                     <div style="display: flex; gap: 10px; padding: 4px 0 6px 0;">
@@ -1309,7 +1309,8 @@ function injectSidebarUI() {
         position: fixed;
         right: 0;
         top: 0;
-        z-index: 99998;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
         background: linear-gradient(rgba(252, 248, 245, 0.85), rgba(252, 248, 245, 0.88)), url('${imageUrl}');
         background-size: cover;
         background-position: center bottom;
@@ -1366,6 +1367,7 @@ function injectSidebarUI() {
                 transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
                 outline: none;
                 user-select: none;
+                pointer-events: auto !important;
             }
             #mandarin-menu-btn:hover {
                 transform: translateY(-2px) scale(1.12);
@@ -2101,7 +2103,7 @@ function injectSidebarUI() {
             }
             #clear-sync-key-btn:active {
                 transform: translateY(2.5px) scale(0.94);
-                box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(200, 150, 160, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
+                box-shadow: 0 1px 0 #e2becb, 0 2px 4px rgba(180, 120, 130, 0.15), inset 0 1.5px 2px rgba(180, 120, 130, 0.25);
             }
 
             /* Scroll containers isolated strictly below header */
